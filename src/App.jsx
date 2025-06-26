@@ -5,48 +5,68 @@ import Signup from './components/Auth/Signup';
 import EmployeeDashboard from './components/Dashboard/EmployeeDashboard';
 import ManagerDashboard from './components/Dashboard/ManagerDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './context/AuthContext'; // if you moved auth context here
+
+// ✅ Define this HERE
+const isProtectedRoute = (page) => {
+  const publicRoutes = ['landing', 'login', 'signup'];
+  return !publicRoutes.includes(page);
+};
 
 function App() {
   const [currentPage, setCurrentPage] = useState('landing');
-  const { user, isAuthenticated, logout } = useAuth();
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
       setCurrentPage('dashboard');
     }
-  }, [isAuthenticated]);
+  }, []);
+
+  const handleNavigation = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handleLogin = (userData) => {
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setCurrentPage('dashboard');
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+    setCurrentPage('landing');
+  };
 
   const renderCurrentPage = () => {
+    // ✅ PROTECT ROUTES
+    if (isProtectedRoute(currentPage) && !user) {
+      return <Login onNavigate={handleNavigation} onLogin={handleLogin}/>;
+    }
+
     switch (currentPage) {
       case 'login':
-        return <Login onNavigate={setCurrentPage} />;
+        return <Login onNavigate={handleNavigation} />;
       case 'signup':
-        return <Signup onNavigate={setCurrentPage} />;
+        return <Signup onNavigate={handleNavigation} />;
       case 'dashboard':
-        if (!user) {
-          return <Login onNavigate={setCurrentPage} />;
-        }
-
-        if (user.role === 'admin') {
-          return <AdminDashboard user={user} onLogout={logout} />;
-        } else if (user.role === 'manager') {
-          return <ManagerDashboard user={user} onLogout={logout} />;
+        if (user?.role === 'admin') {
+          return <AdminDashboard user={user} onLogout={handleLogout} />;
+        } else if (user?.role === 'manager') {
+          return <ManagerDashboard user={user} onLogout={handleLogout} />;
         } else {
-          return <EmployeeDashboard user={user} onLogout={logout} />;
+          return <EmployeeDashboard user={user} onLogout={handleLogout} />;
         }
-
       case 'landing':
       default:
-        return <LandingPage onNavigate={setCurrentPage} />;
+        return <LandingPage onNavigate={handleNavigation} />;
     }
   };
 
-  return (
-    <div className="app">
-      {renderCurrentPage()}
-    </div>
-  );
+  return <div className="app">{renderCurrentPage()}</div>;
 }
 
 export default App;

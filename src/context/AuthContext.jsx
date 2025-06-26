@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   const login = (userData, remember = true) => {
     setUser(userData);
     setIsAuthenticated(true);
-    saveUser(userData, remember);
+    saveUser(userData, );
   };
 
   const logout = () => {

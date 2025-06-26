@@ -35,6 +35,9 @@ router.post("/login", async (req, res) => {
       role: user.role,
       organization_id: user.organization_id,
     });
+
+    console.log("🔑 User logged in successfully:", user.email);
+
   } catch (err) {
     console.error("🔥 Server error:", err.message);
     res.status(500).send("Server error");

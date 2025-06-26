@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 
 
 
-function Login({ onNavigate }) {
+function Login({ onNavigate, onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,8 +31,10 @@ function Login({ onNavigate }) {
         password,
       });
 
+      console.log("Login successful:", res.data);
       const user = res.data;
       login(user, rememberMe); // Save in context + localStorage
+      onLogin(user);
       onNavigate('dashboard'); // Go to dashboard
 
     } catch (err) {
@@ -42,6 +44,8 @@ function Login({ onNavigate }) {
         setError('Something went wrong. Please try again.');
       }
     }
+
+    console.log("yha tak sab shi");
 
     setLoading(false);
   };
