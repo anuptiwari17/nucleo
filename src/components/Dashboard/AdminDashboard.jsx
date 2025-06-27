@@ -110,13 +110,13 @@ const AdminDashboard = ({ managers = [],employees = [], onCreateManager, onCreat
       organization_id: user.organization_id, // comes from useAuth
     });
 
-    alert("✅ Manager created successfully!");
+    alert("Manager created successfully!");
     setNewManager({ name: '', email: '', department: '', password: '' });
     closeModal();
 
   } catch (err) {
     console.error("Error creating manager:", err);
-    alert("❌ Failed to create manager");
+    alert("Failed to create manager");
   }
 };
 
@@ -125,7 +125,7 @@ const AdminDashboard = ({ managers = [],employees = [], onCreateManager, onCreat
   e.preventDefault();
 
   if (!newEmployee.name || !newEmployee.email || !newEmployee.position || !newEmployee.managerId) {
-    alert('⚠️ Please fill all the fields!');
+    alert('Please fill all the fields!');
     return;
   }
 
@@ -139,11 +139,11 @@ const AdminDashboard = ({ managers = [],employees = [], onCreateManager, onCreat
       organization_id: user.organization_id, // from context
     });
 
-    alert('✅ Employee created successfully!');
+    alert('Employee created successfully!');
     setNewEmployee({ name: '', email: '', position: '', managerId: '', password: '' });
     setShowModal(false);
   } catch (err) {
-    console.error('❌ Error creating employee:', err);
+    console.error('Error creating employee:', err);
     if (err.response?.data?.error) {
       alert(`Error: ${err.response.data.error}`);
     } else {

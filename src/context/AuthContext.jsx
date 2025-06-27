@@ -6,7 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(true); // 🆕 important
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = getUser();
@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       setUser(storedUser);
       setIsAuthenticated(true);
     }
-    setIsAuthLoading(false); // 🆕 must be set after checking localStorage
+    setIsAuthLoading(false);
   }, []);
 
   const login = (userData, remember = true) => {

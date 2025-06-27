@@ -1,4 +1,3 @@
-import React from 'react';
 
 const AcceptTask = ({ tasks, onComplete, onFail }) => {
   const TaskCard = ({ task }) => {

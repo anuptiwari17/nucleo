@@ -1,11 +1,10 @@
-// src/utils/localStorage.js
 
 export function saveUser(user, remember = true) {
   const storage = remember ? localStorage : sessionStorage;
   try {
     storage.setItem("user", JSON.stringify(user));
   } catch (err) {
-    console.error("❌ Failed to save user:", err);
+    console.error("Failed to save user:", err);
   }
 }
 
@@ -23,7 +22,7 @@ export function getUser() {
 
     return null;
   } catch (err) {
-    console.error("❌ Failed to read user:", err);
+    console.error("Failed to read user:", err);
     return null;
   }
 }
@@ -33,6 +32,6 @@ export function clearUser() {
     localStorage.removeItem("user");
     sessionStorage.removeItem("user");
   } catch (err) {
-    console.error("❌ Failed to clear user:", err);
+    console.error("Failed to clear user:", err);
   }
 }

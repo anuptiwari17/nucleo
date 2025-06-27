@@ -3,7 +3,7 @@ const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 
-// 🔐 LOGIN
+// login routee
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase();
@@ -14,20 +14,20 @@ router.post("/login", async (req, res) => {
     const user = userRes.rows[0];
 
     if (!user) {
-      console.log("❌ User not found");
+      console.log("User not found");
       return res.status(401).json({ error: "User not found" });
     }
 
-    console.log("✅ Found user:", user.email);
-    console.log("🔒 Comparing password:", password, "with hash:", user.password_hash);
+    console.log("Found user:", user.email);
+    console.log("Comparing password:", password, "with hash:", user.password_hash);
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      console.log("❌ Password mismatch");
+      console.log("Passwordawa match nhi hua");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    console.log("✅ Password matched");
+    console.log("Password matched");
 
     res.json({
       id: user.id,
@@ -36,15 +36,15 @@ router.post("/login", async (req, res) => {
       organization_id: user.organization_id,
     });
 
-    console.log("🔑 User logged in successfully:", user.email);
+    console.log("User logged in successfully:", user.email);
 
   } catch (err) {
-    console.error("🔥 Server error:", err.message);
+    console.error("Server error:", err.message);
     res.status(500).send("Server error");
   }
 });
 
-// 🆕 SIGNUP
+// signup route
 router.post("/signup", async (req, res) => {
   const { full_name, email, password, role, organization_id } = req.body;
 
@@ -62,7 +62,7 @@ router.post("/signup", async (req, res) => {
       organization_id: newUser.rows[0].organization_id,
     });
   } catch (err) {
-    console.error("🔥 Signup error:", err.message);
+    console.error("Signup error:", err.message);
     res.status(500).send("Server error");
   }
 });
