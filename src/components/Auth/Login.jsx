@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
-
-
-
-function Login({ onNavigate, onLogin }) {
+function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
 
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const submitHandler = async (e) => {
     e.preventDefault();
@@ -31,12 +29,9 @@ function Login({ onNavigate, onLogin }) {
         password,
       });
 
-      console.log("Login successful:", res.data);
       const user = res.data;
-      login(user, rememberMe); // Save in context + localStorage
-      onLogin(user);
-      onNavigate('dashboard'); // Go to dashboard
-
+      login(user, true); // Save in context + localStorage
+      navigate('/dashboard'); // Navigate to dashboard
     } catch (err) {
       if (err.response?.status === 401) {
         setError(err.response.data.error || 'Invalid email or password');
@@ -45,15 +40,13 @@ function Login({ onNavigate, onLogin }) {
       }
     }
 
-    console.log("yha tak sab shi");
-
     setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100 flex items-center justify-center p-4">
       <button
-        onClick={() => onNavigate('landing')}
+        onClick={() => navigate('/')}
         className="absolute top-4 left-4 flex items-center space-x-2 text-red-600 hover:text-red-700 transition-colors"
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,16 +95,7 @@ function Login({ onNavigate, onLogin }) {
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-  type="checkbox"
-  checked={rememberMe}
-  onChange={(e) => setRememberMe(e.target.checked)}
-  className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-/>
-
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </div>
+              
               <button type="button" className="text-sm text-red-600 hover:text-red-700">
                 Forgot password?
               </button>
@@ -125,12 +109,12 @@ function Login({ onNavigate, onLogin }) {
               {loading ? (
                 <>
                   <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path
                       className="opacity-75"
                       fill="currentColor"
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
+                    />
                   </svg>
                   <span>Signing in...</span>
                 </>
@@ -143,7 +127,7 @@ function Login({ onNavigate, onLogin }) {
           <div className="mt-8 text-center">
             <p className="text-gray-600">
               Don't have an organization account?{' '}
-              <button onClick={() => onNavigate('signup')} className="text-red-600 hover:text-red-700 font-medium">
+              <button onClick={() => navigate('/signup')} className="text-red-600 hover:text-red-700 font-medium">
                 Create organization
               </button>
             </p>

@@ -4,8 +4,18 @@ import NewTask from '../TaskList/NewTask';
 import AcceptTask from '../TaskList/AcceptTask';
 import CompleteTask from '../TaskList/CompleteTask';
 import FailedTask from '../TaskList/FailedTask';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const EmployeeDashboard = ({ onLogout }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const [tasks, setTasks] = React.useState({
     new: [
       { id: 1, title: "Complete Project Documentation", priority: "High", dueDate: "2025-06-30", assignedBy: "Manager" },
@@ -122,7 +132,7 @@ const EmployeeDashboard = ({ onLogout }) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header onLogout={onLogout} />
+      <Header onLogout={handleLogout} />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}

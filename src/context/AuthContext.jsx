@@ -6,19 +6,23 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true); // 🆕 important
 
   useEffect(() => {
     const storedUser = getUser();
+    console.log("🔄 Restoring user from localStorage:", storedUser);
+
     if (storedUser) {
       setUser(storedUser);
       setIsAuthenticated(true);
     }
+    setIsAuthLoading(false); // 🆕 must be set after checking localStorage
   }, []);
 
   const login = (userData, remember = true) => {
     setUser(userData);
     setIsAuthenticated(true);
-    saveUser(userData, );
+    if (remember) saveUser(userData, remember);
   };
 
   const logout = () => {
@@ -28,7 +32,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isAuthLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

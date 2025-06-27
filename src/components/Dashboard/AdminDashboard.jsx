@@ -1,8 +1,10 @@
-
 import React from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 
-// Mock Header component
+// Header Component
 const Header = ({ onLogout, user }) => (
   <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
     <div className="flex items-center justify-between">
@@ -56,12 +58,19 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreateManager, onCreateEmployee }) => {
+const AdminDashboard = ({ managers = [],employees = [], onCreateManager, onCreateEmployee }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const [activeTab, setActiveTab] = React.useState('overview');
   const [showModal, setShowModal] = React.useState(false);
   const [modalType, setModalType] = React.useState('');
-  
-  // New Manager State
+
   const [newManager, setNewManager] = React.useState({
     name: '',
     email: '',
@@ -69,7 +78,6 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
     password: ''
   });
 
-  // New Employee State
   const [newEmployee, setNewEmployee] = React.useState({
     name: '',
     email: '',
@@ -78,51 +86,74 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
     password: ''
   });
 
-  // Mock Tasks Data for overview
-  const [tasks, setTasks] = React.useState([
+  const [tasks] = React.useState([
     { id: 1, title: "Complete Project Documentation", priority: "High", assignedTo: "John Doe", status: "active", dueDate: "2025-06-30", managerId: 2 },
     { id: 2, title: "Review Code Changes", priority: "Medium", assignedTo: "Jane Smith", status: "completed", dueDate: "2025-06-28", managerId: 2 },
     { id: 3, title: "Implement User Authentication", priority: "High", assignedTo: "John Doe", status: "active", dueDate: "2025-07-05", managerId: 3 },
     { id: 4, title: "Database Optimization", priority: "Medium", assignedTo: "Jane Smith", status: "failed", dueDate: "2025-07-02", managerId: 3 }
   ]);
 
-  // Handle Create Manager
-  const handleCreateManager = (e) => {
-    e.preventDefault();
-    if (newManager.name && newManager.email && newManager.department) {
-      const result = onCreateManager({
-        ...newManager,
-        password: newManager.password || 'manager123'
-      });
-      
-      if (result.success) {
-        setNewManager({ name: '', email: '', department: '', password: '' });
-        setShowModal(false);
-        alert('Manager created successfully!');
-      } else {
-        alert(result.message || 'Failed to create manager');
-      }
-    }
-  };
 
-  // Handle Create Employee
-  const handleCreateEmployee = (e) => {
-    e.preventDefault();
-    if (newEmployee.name && newEmployee.email && newEmployee.position && newEmployee.managerId) {
-      const result = onCreateEmployee({
-        ...newEmployee,
-        password: newEmployee.password || 'emp123'
-      });
-      
-      if (result.success) {
-        setNewEmployee({ name: '', email: '', position: '', managerId: '', password: '' });
-        setShowModal(false);
-        alert('Employee created successfully!');
-      } else {
-        alert(result.message || 'Failed to create employee');
-      }
+
+  const handleCreateManager = async () => {
+  if (!newManager.name || !newManager.email || !newManager.department) {
+    alert("Please fill in all manager fields");
+    return;
+  }
+
+  try {
+    await axios.post("http://localhost:5000/api/users/create-manager", {
+      full_name: newManager.name,
+      email: newManager.email,
+      department: newManager.department,
+      password: newManager.password || "manager123",
+      organization_id: user.organization_id, // comes from useAuth
+    });
+
+    alert("✅ Manager created successfully!");
+    setNewManager({ name: '', email: '', department: '', password: '' });
+    closeModal();
+
+  } catch (err) {
+    console.error("Error creating manager:", err);
+    alert("❌ Failed to create manager");
+  }
+};
+
+
+ const handleCreateEmployee = async (e) => {
+  e.preventDefault();
+
+  if (!newEmployee.name || !newEmployee.email || !newEmployee.position || !newEmployee.managerId) {
+    alert('⚠️ Please fill all the fields!');
+    return;
+  }
+
+  try {
+    const response = await axios.post('http://localhost:5000/api/users/create-employee', {
+      full_name: newEmployee.name,
+      email: newEmployee.email,
+      position: newEmployee.position,
+      manager_id: newEmployee.managerId,
+      password: newEmployee.password || 'emp123',
+      organization_id: user.organization_id, // from context
+    });
+
+    alert('✅ Employee created successfully!');
+    setNewEmployee({ name: '', email: '', position: '', managerId: '', password: '' });
+    setShowModal(false);
+  } catch (err) {
+    console.error('❌ Error creating employee:', err);
+    if (err.response?.data?.error) {
+      alert(`Error: ${err.response.data.error}`);
+    } else {
+      alert('Something went wrong while creating employee!');
     }
-  };
+  }
+};
+
+
+
 
   // Open Modal
   const openModal = (type) => {
@@ -142,7 +173,6 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter(t => t.status === 'completed').length;
   const activeTasks = tasks.filter(t => t.status === 'active').length;
-  const failedTasks = tasks.filter(t => t.status === 'failed').length;
 
   const StatsCard = ({ title, value, icon, color, bgColor }) => (
     <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
@@ -167,7 +197,8 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
           : 'bg-white text-gray-600 hover:bg-gray-50 shadow-md'
       }`}
     >
-      {label} {count !== undefined && (
+      {label}
+      {count !== undefined && (
         <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
           isActive ? 'bg-white bg-opacity-20' : 'bg-gray-200'
         }`}>
@@ -176,6 +207,19 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
       )}
     </button>
   );
+
+
+   const renderTabContent = () => {
+    switch (activeTab) {
+      case 'managers':
+        return renderManagers();
+      case 'employees':
+        return renderEmployees();
+      default:
+        return renderOverview();
+    }
+  };
+
 
   const renderOverview = () => (
     <div className="space-y-8">
@@ -361,20 +405,11 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
     </div>
   );
 
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'managers':
-        return renderManagers();
-      case 'employees':
-        return renderEmployees();
-      default:
-        return renderOverview();
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header onLogout={onLogout} user={user} />
+     <Header onLogout={handleLogout} />
+
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -567,7 +602,7 @@ const AdminDashboard = ({ onLogout, user, managers = [], employees = [], onCreat
             <label className="block text-sm font-medium text-gray-700 mb-1">Assign to Manager</label>
             <select
               value={newEmployee.managerId}
-              onChange={(e) => setNewEmployee({...newEmployee, managerId: parseInt(e.target.value)})}
+              onChange={(e) => setNewEmployee({...newEmployee, managerId: e.target.value})}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             >

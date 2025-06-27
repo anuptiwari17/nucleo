@@ -14,8 +14,12 @@ export function getUser() {
     const fromLocal = localStorage.getItem("user");
     if (fromLocal) return JSON.parse(fromLocal);
 
+    console.log("📦 fromLocal", fromLocal);
+    
     const fromSession = sessionStorage.getItem("user");
     if (fromSession) return JSON.parse(fromSession);
+
+    console.log("📦 fromSession", fromSession);
 
     return null;
   } catch (err) {

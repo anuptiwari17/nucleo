@@ -1,6 +1,9 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = ({ onNavigate }) => {
+
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
       
@@ -15,13 +18,13 @@ const LandingPage = ({ onNavigate }) => {
           </div>
           <div className="space-x-4">
             <button 
-              onClick={() => onNavigate('login')}
+              onClick={() => navigate('login')}
               className="text-red-600 hover:text-red-700 font-medium transition-colors"
             >
               Login
             </button>
             <button 
-              onClick={() => onNavigate('signup')}
+              onClick={() => navigate('signup')}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
             >
               Sign Up
@@ -42,13 +45,13 @@ const LandingPage = ({ onNavigate }) => {
           </p>
           <div className="space-x-4">
             <button 
-              onClick={() => onNavigate('signup')}
+              onClick={() => navigate('signup')}
               className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 rounded-lg text-lg font-medium transition-colors shadow-lg"
             >
               Get Started Free
             </button>
             <button 
-              onClick={() => onNavigate('login')}
+              onClick={() => navigate('login')}
               className="border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white px-8 py-3 rounded-lg text-lg font-medium transition-colors"
             >
               Login to Account

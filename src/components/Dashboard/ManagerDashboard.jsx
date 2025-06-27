@@ -1,7 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import axios from 'axios';
+
 
 // Mock Header component
-const Header = ({ onLogout, user }) => (
+const Header = ({ onLogout,user }) => (
   <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-4">
@@ -54,7 +58,18 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
-const ManagerDashboard = ({ onLogout, user, employees = [], onCreateEmployee, onAssignTask }) => {
+const ManagerDashboard = ({ onLogout, employees = [], onCreateEmployee, onAssignTask }) => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate(); 
+
+
+  const handleLogout = () => {
+  logout(); 
+  navigate('/login'); 
+};
+
+
+
   const [activeTab, setActiveTab] = React.useState('overview');
   const [showModal, setShowModal] = React.useState(false);
   const [modalType, setModalType] = React.useState('');
@@ -88,58 +103,71 @@ const ManagerDashboard = ({ onLogout, user, employees = [], onCreateEmployee, on
   const myEmployees = employees.filter(emp => emp.managerId === user?.id);
 
   // Handle Create Employee
-  const handleCreateEmployee = (e) => {
-    e.preventDefault();
-    if (newEmployee.name && newEmployee.email && newEmployee.position) {
-      const result = onCreateEmployee({
-        ...newEmployee,
-        managerId: user.id,
-        password: newEmployee.password || 'emp123'
-      });
-      
-      if (result.success) {
-        setNewEmployee({ name: '', email: '', position: '', password: '' });
-        setShowModal(false);
-        alert('Employee created successfully!');
-      } else {
-        alert(result.message || 'Failed to create employee');
-      }
-    }
+const handleCreateEmployee = async (e) => {
+  e.preventDefault();
+  console.log("e.preveD crossed!!");
+  console.log("Yeh user hai,", user);
+
+
+
+  if (!newEmployee.name || !newEmployee.email || !newEmployee.position) {
+    alert("Please fill in all employee fields");
+    return;
+  }
+
+  console.log("API call iske baad hogi")
+
+  try {
+    await axios.post("http://localhost:5000/api/users/create-employee", {
+      full_name: newEmployee.name,
+      email: newEmployee.email,
+      position: newEmployee.position,
+      password: newEmployee.password || "emp123",
+      manager_id: user.id,
+      organization_id: user.organization_id, // comes from useAuth
+    });
+
+    alert("✅ Employee created successfully!");
+    setNewEmployee({ name: '', email: '', position: '', managerId: '', password: '' });
+    closeModal();
+
+  } catch (err) {
+    console.error("Error creating employee:", err);
+    alert("❌ Failed to create employee");
+  }
+};
+
+
+  const handleAssignTask = async (e) => {
+  e.preventDefault();
+
+  if (!newTask.title || !newTask.assignedTo || !newTask.dueDate) {
+    alert("❗Please fill all required fields");
+    return;
+  }
+
+  const taskData = {
+    title: newTask.title,
+    description: newTask.description,
+    priority: newTask.priority.toLowerCase(), // Make sure it's one of: low, medium, high
+    due_date: newTask.dueDate,
+    assigned_by: user.id,
+    assigned_to: newTask.assignedTo,
+    organization_id: user.organization_id,
   };
 
-  // Handle Assign Task
-  const handleAssignTask = (e) => {
-    e.preventDefault();
-    if (newTask.title && newTask.assignedTo && newTask.dueDate) {
-      const task = {
-        id: tasks.length + 1,
-        ...newTask,
-        status: 'new',
-        createdBy: user.id,
-        createdDate: new Date().toISOString().split('T')[0]
-      };
-      
-      if (onAssignTask) {
-        const result = onAssignTask(task);
-        if (result.success) {
-          setTasks(prev => [...prev, task]);
-          setNewTask({ title: '', description: '', priority: 'Medium', assignedTo: '', dueDate: '' });
-          setShowModal(false);
-          alert('Task assigned successfully!');
-          return;
-        } else {
-          alert(result.message || 'Failed to assign task');
-          return;
-        }
-      }
-      
-      // Fallback to local state if no onAssignTask prop
-      setTasks(prev => [...prev, task]);
-      setNewTask({ title: '', description: '', priority: 'Medium', assignedTo: '', dueDate: '' });
-      setShowModal(false);
-      alert('Task assigned successfully!');
-    }
-  };
+  try {
+    const response = await axios.post("http://localhost:5000/api/tasks/assign", taskData);
+
+    alert("✅ Task assigned successfully!");
+    setTasks(prev => [...prev, response.data.task]); // use returned task
+    closeModal();
+  } catch (err) {
+    console.error("🔥 Failed to assign task:", err.response?.data || err.message);
+    alert("❌ Failed to assign task");
+  }
+};
+
 
   // Open Modal
   const openModal = (type) => {
@@ -414,7 +442,7 @@ const ManagerDashboard = ({ onLogout, user, employees = [], onCreateEmployee, on
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header onLogout={onLogout} user={user} />
+      <Header onLogout={handleLogout} />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -616,7 +644,7 @@ const ManagerDashboard = ({ onLogout, user, employees = [], onCreateEmployee, on
               >
                 <option value="">Select Team Member</option>
                 {myEmployees.map(employee => (
-                  <option key={employee.id} value={employee.name}>
+                  <option key={employee.id} value={employee.id}>
                     {employee.name} ({employee.position})
                   </option>
                 ))}
