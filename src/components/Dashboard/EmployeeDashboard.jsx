@@ -17,57 +17,186 @@ const EmployeeDashboard = ({ onLogout }) => {
   };
 
   const [tasks, setTasks] = React.useState({
-    new: [
-      { id: 1, title: "Complete Project Documentation", priority: "High", dueDate: "2025-06-30", assignedBy: "Manager" },
-      { id: 2, title: "Review Code Changes", priority: "Medium", dueDate: "2025-06-28", assignedBy: "Team Lead" }
-    ],
-    active: [
-      { id: 3, title: "Implement User Authentication", priority: "High", dueDate: "2025-07-05", assignedBy: "CTO" },
-      { id: 4, title: "Database Optimization", priority: "Medium", dueDate: "2025-07-02", assignedBy: "Manager" }
-    ],
-    completed: [
-      { id: 5, title: "Setup Development Environment", priority: "Low", assignedBy: "Team Lead", completedDate: "2025-06-20" },
-      { id: 6, title: "Unit Testing Implementation", priority: "Medium", assignedBy: "Manager", completedDate: "2025-06-22" }
-    ],
-    failed: [
-      { id: 7, title: "API Integration", priority: "High", assignedBy: "CTO", failedDate: "2025-06-25", reason: "External API deprecated" }
-    ]
+    new: [],
+    active: [],
+    completed: [],
+    failed: []
   });
 
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
   const [activeTab, setActiveTab] = React.useState('overview');
 
-  const acceptTask = (taskId) => {
-    const taskToMove = tasks.new.find(task => task.id === taskId);
-    if (taskToMove) {
-      setTasks(prev => ({
-        ...prev,
-        new: prev.new.filter(task => task.id !== taskId),
-        active: [...prev.active, { ...taskToMove, acceptedDate: new Date().toISOString().split('T')[0] }]
-      }));
+  
+  const API_BASE_URL ='http://localhost:5000/api';
+
+  // Fetch all tasks for the employee
+  const fetchTasks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/tasks/employee/${user.id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Organize tasks by status
+        const organizedTasks = {
+          new: data.tasks.filter(task => task.status === 'new'),
+          active: data.tasks.filter(task => task.status === 'accepted'),
+          completed: data.tasks.filter(task => task.status === 'completed'),
+          failed: data.tasks.filter(task => task.status === 'failed')
+        };
+        
+        setTasks(organizedTasks);
+      } else {
+        throw new Error(data.message || 'Failed to fetch tasks');
+      }
+    } catch (err) {
+      console.error('Error fetching tasks:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const completeTask = (taskId) => {
-    const taskToMove = tasks.active.find(task => task.id === taskId);
-    if (taskToMove) {
-      setTasks(prev => ({
-        ...prev,
-        active: prev.active.filter(task => task.id !== taskId),
-        completed: [...prev.completed, { ...taskToMove, completedDate: new Date().toISOString().split('T')[0] }]
-      }));
+  // Accept a task
+  const acceptTask = async (taskId) => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/accept`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: user.id
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to accept task');
+      }
+
+      if (data.success) {
+        // Refresh tasks after successful acceptance
+        await fetchTasks();
+        
+        // Show success message (you can replace this with a toast notification)
+        alert('Task accepted successfully!');
+      } else {
+        throw new Error(data.message || 'Failed to accept task');
+      }
+    } catch (err) {
+      console.error('Error accepting task:', err);
+      alert('Error accepting task: ' + err.message);
     }
   };
 
-  const failTask = (taskId, reason) => {
-    const taskToMove = tasks.active.find(task => task.id === taskId);
-    if (taskToMove) {
-      setTasks(prev => ({
-        ...prev,
-        active: prev.active.filter(task => task.id !== taskId),
-        failed: [...prev.failed, { ...taskToMove, failedDate: new Date().toISOString().split('T')[0], reason }]
-      }));
+  // Complete a task
+  const completeTask = async (taskId, note = '') => {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/complete`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          note: note
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to complete task');
+      }
+
+      if (data.success) {
+        // Refresh tasks after successful completion
+        await fetchTasks();
+        
+        // Show success message
+        alert('Task completed successfully!');
+      } else {
+        throw new Error(data.message || 'Failed to complete task');
+      }
+    } catch (err) {
+      console.error('Error completing task:', err);
+      alert('Error completing task: ' + err.message);
     }
   };
+
+  // Fail a task
+  const failTask = async (taskId, reason) => {
+    try {
+      if (!reason || reason.trim() === '') {
+        alert('Please provide a reason for failing the task');
+        return;
+      }
+
+      const token = localStorage.getItem('token');
+      
+      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/fail`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_id: user.id,
+          reason: reason
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to mark task as failed');
+      }
+
+      if (data.success) {
+        // Refresh tasks after successful failure marking
+        await fetchTasks();
+        
+        // Show success message
+        alert('Task marked as failed successfully!');
+      } else {
+        throw new Error(data.message || 'Failed to mark task as failed');
+      }
+    } catch (err) {
+      console.error('Error marking task as failed:', err);
+      alert('Error marking task as failed: ' + err.message);
+    }
+  };
+
+  // Load tasks on component mount
+  React.useEffect(() => {
+    if (user && user.id) {
+      fetchTasks();
+    }
+  }, [user]);
 
   // Calculate stats
   const totalTasks = Object.values(tasks).flat().length;
@@ -109,6 +238,35 @@ const EmployeeDashboard = ({ onLogout }) => {
   );
 
   const renderTabContent = () => {
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span className="ml-3 text-gray-600">Loading tasks...</span>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <div className="text-red-600 mb-4">
+            <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-lg font-medium">Error loading tasks</p>
+            <p className="text-sm">{error}</p>
+          </div>
+          <button
+            onClick={fetchTasks}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case 'new':
         return <NewTask tasks={tasks.new} onAccept={acceptTask} />;
@@ -137,8 +295,24 @@ const EmployeeDashboard = ({ onLogout }) => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome back! 👋</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">
+            Welcome back, {user?.name || user?.email}! 👋
+          </h1>
           <p className="text-gray-600">Here's what's happening with your tasks today.</p>
+        </div>
+
+        {/* Refresh Button */}
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={fetchTasks}
+            disabled={loading}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {loading ? 'Refreshing...' : 'Refresh Tasks'}
+          </button>
         </div>
 
         {/* Stats Cards */}

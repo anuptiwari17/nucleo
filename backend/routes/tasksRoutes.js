@@ -178,7 +178,14 @@ router.get('/logs/organization/:organizationId', async (req, res) => {
 router.get('/employee/:employeeId', async (req, res) => {
   try {
     const { employeeId } = req.params;
-    const { status } = req.query; // this is optional filter by status - dekhunga baad me iska koi kaam lagega kya
+    const { status } = req.query; // Optional filter by status
+    
+    if (!employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Employee ID is required'
+      });
+    }
     
     let query = `
       SELECT 
@@ -208,13 +215,31 @@ router.get('/employee/:employeeId', async (req, res) => {
       params.push(status);
     }
     
-    query += ` ORDER BY t.created_at DESC`;
+    // Better ordering: prioritize by status, then by date
+    query += ` ORDER BY 
+      CASE t.status
+        WHEN 'new' THEN 1
+        WHEN 'accepted' THEN 2
+        WHEN 'completed' THEN 3
+        WHEN 'failed' THEN 4
+      END,
+      t.created_at DESC`;
     
     const result = await pool.query(query, params);
     
+    // Handle empty results gracefully
+    if (result.rows.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No tasks found for this employee',
+        tasks: []
+      });
+    }
+    
     res.status(200).json({
       success: true,
-      tasks: result.rows
+      tasks: result.rows,
+      count: result.rows.length // Added for convenience
     });
     
   } catch (error) {
@@ -552,5 +577,8 @@ router.delete('/:taskId', async (req, res) => {
     });
   }
 });
+
+
+
 
 module.exports = router;

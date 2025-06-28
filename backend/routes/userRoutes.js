@@ -57,7 +57,7 @@ router.post("/create-employee", async (req, res) => {
     organization_id
   } = req.body;
 
-  // 🔍 Validate input
+  //Validate input
   if (!full_name || !email || !position || !manager_id || !organization_id) {
     return res.status(400).json({ error: "Missing required fields" });
   }
@@ -118,7 +118,59 @@ router.get("/manager/:managerId", async (req, res) => {
 
 
 
+// GET /api/users/managers/:organizationId - Fetch all managers in an organization
+router.get('/managers/:organizationId', async (req, res) => {
+  try {
+    const { organizationId } = req.params;
 
+    const query = `
+      SELECT 
+        id,
+        full_name,
+        email,
+        department,
+        position,
+        created_at
+      FROM users 
+      WHERE organization_id = $1 
+        AND role = 'manager'
+      ORDER BY full_name ASC
+    `;
+
+    const result = await pool.query(query, [organizationId]);
+
+    // Count employees for each manager
+    const managersWithEmployeeCount = await Promise.all(
+      result.rows.map(async (manager) => {
+        const employeeCountQuery = `
+          SELECT COUNT(*) 
+          FROM users 
+          WHERE organization_id = $1 
+            AND manager_id = $2 
+            AND role = 'employee'
+        `;
+        const countResult = await pool.query(employeeCountQuery, [organizationId, manager.id]);
+        return {
+          ...manager,
+          employee_count: parseInt(countResult.rows[0].count, 0)
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      managers: managersWithEmployeeCount
+    });
+
+  } catch (error) {
+    console.error('Error fetching managers:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch managers',
+      error: error.message
+    });
+  }
+});
 
 
 
@@ -168,12 +220,6 @@ router.get('/employees/:organizationId', async (req, res) => {
     });
   }
 });
-
-
-
-
-
-
 
 
 
