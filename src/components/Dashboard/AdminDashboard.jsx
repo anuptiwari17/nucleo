@@ -58,8 +58,7 @@ const AdminDashboard = () => {
     assigned_to: ''
   });
 
-require('dotenv').config();
-const baseURL = process.env.BACKEND_API_BASE_URL;
+const baseURL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
 
   // Fetch all data on component mount

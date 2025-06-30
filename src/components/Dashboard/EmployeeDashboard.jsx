@@ -9,8 +9,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-require('dotenv').config();
-const baseURL = process.env.BACKEND_API_BASE_URL;
+const baseURL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 

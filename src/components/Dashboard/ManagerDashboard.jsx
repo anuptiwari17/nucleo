@@ -15,8 +15,7 @@ import {
 import { Pie, Bar } from 'react-chartjs-2';
 
 
-require('dotenv').config();
-const baseURL = process.env.BACKEND_API_BASE_URL;
+const baseURL = import.meta.env.VITE_BACKEND_API_BASE_URL;
 
 
 
@@ -160,7 +159,7 @@ const ManagerDashboard = () => {
   // API calls
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get(`${baseURL}users/employees/${user.organization_id}`, {
+      const response = await axios.get(`${baseURL}/users/employees/${user.organization_id}`, {
         params: { manager_id: user.id }
       });
       setEmployees(response.data.employees || []);
@@ -172,7 +171,7 @@ const ManagerDashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`${baseURL}tasks/manager/${user.id}`);
+      const response = await axios.get(`${baseURL}/tasks/manager/${user.id}`);
       setTasks(response.data.tasks || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -184,7 +183,7 @@ const ManagerDashboard = () => {
 
   const fetchTaskLogs = async () => {
     try {
-      const response = await axios.get(`${baseURL}tasks/logs/organization/${user.organization_id}`);
+      const response = await axios.get(`${baseURL}/tasks/logs/organization/${user.organization_id}`);
       setTaskLogs(response.data.logs || []);
     } catch (error) {
       console.error('Error fetching task logs:', error);
@@ -211,7 +210,7 @@ const ManagerDashboard = () => {
     }
 
     try {
-      const response = await axios.delete(`${baseURL}tasks/${taskId}`, {
+      const response = await axios.delete(`${baseURL}/tasks/${taskId}`, {
         data: { manager_id: user.id }
       });
 
@@ -239,7 +238,7 @@ const ManagerDashboard = () => {
 
     try {
       const deletePromises = taskIds.map(taskId => 
-        axios.delete(`${baseURL}tasks/${taskId}`, {
+        axios.delete(`${baseURL}/tasks/${taskId}`, {
           data: { manager_id: user.id }
         })
       );
@@ -272,7 +271,7 @@ const ManagerDashboard = () => {
     }
 
     try {
-      await axios.post("${baseURL}users/create-employee", {
+      await axios.post(`${baseURL}/users/create-employee`, {
         full_name: newEmployee.name,
         email: newEmployee.email,
         position: newEmployee.position,
@@ -312,7 +311,7 @@ const ManagerDashboard = () => {
     };
 
     try {
-      const response = await axios.post("${baseURL}tasks/assign", taskData);
+      const response = await axios.post(`${baseURL}/tasks/assign`, taskData);
       alert("Task assigned successfully!");
       closeModal();
       fetchTasks();
