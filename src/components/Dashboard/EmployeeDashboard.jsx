@@ -9,7 +9,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 
-
+require('dotenv').config();
+const baseURL = process.env.BACKEND_API_BASE_URL;
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -33,7 +34,6 @@ const EmployeeDashboard = ({ onLogout }) => {
   const [error, setError] = React.useState(null);
   const [activeTab, setActiveTab] = React.useState('overview');
 
-  const API_BASE_URL = 'http://localhost:5000/api';
 
   // Fetch all tasks for the employee
   const fetchTasks = async () => {
@@ -43,7 +43,7 @@ const EmployeeDashboard = ({ onLogout }) => {
       
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/tasks/employee/${user.id}`, {
+      const response = await fetch(`${baseURL}/tasks/employee/${user.id}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,7 +83,7 @@ const EmployeeDashboard = ({ onLogout }) => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/accept`, {
+      const response = await fetch(`${baseURL}/tasks/${taskId}/accept`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -117,7 +117,7 @@ const EmployeeDashboard = ({ onLogout }) => {
     try {
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/complete`, {
+      const response = await fetch(`${baseURL}/tasks/${taskId}/complete`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -158,7 +158,7 @@ const failTask = async (taskId, reason) => {
 
     const token = localStorage.getItem('token');
     
-    const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/fail`, {
+    const response = await fetch(`${baseURL}/tasks/${taskId}/fail`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`,

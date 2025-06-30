@@ -58,8 +58,9 @@ const AdminDashboard = () => {
     assigned_to: ''
   });
 
-  // API Base URL
-  const API_BASE = 'http://localhost:5000/api';
+require('dotenv').config();
+const baseURL = process.env.BACKEND_API_BASE_URL;
+
 
   // Fetch all data on component mount
   useEffect(() => {
@@ -87,7 +88,7 @@ const AdminDashboard = () => {
 
   const fetchManagers = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/users/managers/${user.organization_id}`);
+      const response = await axios.get(`${baseURL}/users/managers/${user.organization_id}`);
       const managersData = response.data?.managers || response.data || [];
       setManagers(Array.isArray(managersData) ? managersData : []);
     } catch (error) {
@@ -98,7 +99,7 @@ const AdminDashboard = () => {
 
  const fetchEmployees = async () => {
   try {
-    const response = await axios.get(`${API_BASE}/users/employees/${user.organization_id}`);
+    const response = await axios.get(`${baseURL}/users/employees/${user.organization_id}`);
     const employeesData = response.data?.employees || [];
     setEmployees(employeesData);
   } catch (error) {
@@ -109,7 +110,7 @@ const AdminDashboard = () => {
 
 const fetchAllTasks = async () => {
   try {
-    const response = await axios.get(`${API_BASE}/tasks/organization/${user.organization_id}`);
+    const response = await axios.get(`${baseURL}/tasks/organization/${user.organization_id}`);
     setTasks(response.data.tasks || []);
   } catch (error) {
     console.error('Error fetching tasks:', error);
@@ -119,7 +120,7 @@ const fetchAllTasks = async () => {
 
   const fetchTaskLogs = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/tasks/logs/organization/${user.organization_id}`);
+      const response = await axios.get(`${baseURL}/tasks/logs/organization/${user.organization_id}`);
       setTaskLogs(response.data.logs || []);
     } catch (error) {
       console.error('Error fetching task logs:', error);
@@ -129,7 +130,7 @@ const fetchAllTasks = async () => {
 
 const fetchTaskStats = async () => {
   try {
-    const response = await axios.get(`${API_BASE}/tasks/stats/organization/${user.organization_id}`);
+    const response = await axios.get(`${baseURL}/tasks/stats/organization/${user.organization_id}`);
     const stats = response.data.stats;
     
     // Convert all stats to numbers (PostgreSQL returns them as strings)
@@ -178,7 +179,7 @@ const fetchTaskStats = async () => {
     }
 
     try {
-      await axios.post(`${API_BASE}/users/create-manager`, {
+      await axios.post(`${baseURL}/users/create-manager`, {
         full_name: newManager.name,
         email: newManager.email,
         department: newManager.department,
@@ -209,7 +210,7 @@ const fetchTaskStats = async () => {
     }
 
     try {
-      await axios.post(`${API_BASE}/users/create-employee`, {
+      await axios.post(`${baseURL}/users/create-employee`, {
         full_name: newEmployee.name,
         email: newEmployee.email,
         position: newEmployee.position,
@@ -242,7 +243,7 @@ const fetchTaskStats = async () => {
 
     try {
       const managerId = user.id; // Assuming admin is creating tasks
-      await axios.post(`${API_BASE}/tasks/assign`, {
+      await axios.post(`${baseURL}/tasks/assign`, {
         title: newTask.title,
         description: newTask.description,
         priority: newTask.priority,
@@ -271,7 +272,7 @@ const fetchTaskStats = async () => {
     if (!window.confirm('Are you sure you want to delete this task?')) return;
 
     try {
-      await axios.delete(`${API_BASE}/tasks/${taskId}`, {
+      await axios.delete(`${baseURL}/tasks/${taskId}`, {
         data: { manager_id: user.id }
       });
 

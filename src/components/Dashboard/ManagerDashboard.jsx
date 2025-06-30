@@ -15,6 +15,9 @@ import {
 import { Pie, Bar } from 'react-chartjs-2';
 
 
+require('dotenv').config();
+const baseURL = process.env.BACKEND_API_BASE_URL;
+
 
 
 ChartJS.register(ArcElement, Tooltip, Legend);
@@ -157,7 +160,7 @@ const ManagerDashboard = () => {
   // API calls
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/users/employees/${user.organization_id}`, {
+      const response = await axios.get(`${baseURL}users/employees/${user.organization_id}`, {
         params: { manager_id: user.id }
       });
       setEmployees(response.data.employees || []);
@@ -169,7 +172,7 @@ const ManagerDashboard = () => {
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tasks/manager/${user.id}`);
+      const response = await axios.get(`${baseURL}tasks/manager/${user.id}`);
       setTasks(response.data.tasks || []);
     } catch (error) {
       console.error('Error fetching tasks:', error);
@@ -181,7 +184,7 @@ const ManagerDashboard = () => {
 
   const fetchTaskLogs = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/tasks/logs/organization/${user.organization_id}`);
+      const response = await axios.get(`${baseURL}tasks/logs/organization/${user.organization_id}`);
       setTaskLogs(response.data.logs || []);
     } catch (error) {
       console.error('Error fetching task logs:', error);
@@ -208,7 +211,7 @@ const ManagerDashboard = () => {
     }
 
     try {
-      const response = await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
+      const response = await axios.delete(`${baseURL}tasks/${taskId}`, {
         data: { manager_id: user.id }
       });
 
@@ -236,7 +239,7 @@ const ManagerDashboard = () => {
 
     try {
       const deletePromises = taskIds.map(taskId => 
-        axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
+        axios.delete(`${baseURL}tasks/${taskId}`, {
           data: { manager_id: user.id }
         })
       );
@@ -269,7 +272,7 @@ const ManagerDashboard = () => {
     }
 
     try {
-      await axios.post("http://localhost:5000/api/users/create-employee", {
+      await axios.post("${baseURL}users/create-employee", {
         full_name: newEmployee.name,
         email: newEmployee.email,
         position: newEmployee.position,
@@ -309,7 +312,7 @@ const ManagerDashboard = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/api/tasks/assign", taskData);
+      const response = await axios.post("${baseURL}tasks/assign", taskData);
       alert("Task assigned successfully!");
       closeModal();
       fetchTasks();
