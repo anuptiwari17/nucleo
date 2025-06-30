@@ -2,98 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { Bar, Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
-// Header Component
-const Header = ({ onLogout, user }) => (
-  <div className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center space-x-4">
-        <div className="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center">
-          <span className="text-white font-bold text-lg">N</span>
-        </div>
-        <div>
-          <h1 className="font-semibold text-gray-800">Nucleo</h1>
-          <p className="text-sm text-gray-600">{user?.organizationName}</p>
-        </div>
-      </div>
-      <div className="flex items-center space-x-4">
-        <div className="text-right">
-          <p className="text-sm font-medium text-gray-800">{user?.name}</p>
-          <p className="text-xs text-gray-600 capitalize">{user?.role}</p>
-        </div>
-        <button
-          onClick={onLogout}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
-// Modal Component
-const Modal = ({ isOpen, onClose, title, children }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Loading Spinner Component
-const LoadingSpinner = () => (
-  <div className="flex justify-center items-center p-8">
-    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-  </div>
-);
-
-// Task Status Badge Component
-const TaskStatusBadge = ({ status }) => {
-  const statusColors = {
-    new: 'bg-blue-100 text-blue-800',
-    accepted: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-green-100 text-green-800',
-    failed: 'bg-red-100 text-red-800'
-  };
-
-  return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
-};
-
-// Priority Badge Component
-const PriorityBadge = ({ priority }) => {
-  const priorityColors = {
-    high: 'bg-red-100 text-red-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    low: 'bg-green-100 text-green-800'
-  };
-
-  return (
-    <span className={`px-2 py-1 rounded-full text-xs font-medium ${priorityColors[priority]}`}>
-      {priority.charAt(0).toUpperCase() + priority.slice(1)}
-    </span>
-  );
-};
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
@@ -184,31 +96,26 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchEmployees = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/users/employees/${user.organization_id}`);
-      const employeesData = response.data?.employees || [];
-      setEmployees(employeesData);
-    } catch (error) {
-      console.error('Error fetching employees:', error);
-      setEmployees([]);
-    }
-  };
+ const fetchEmployees = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/users/employees/${user.organization_id}`);
+    const employeesData = response.data?.employees || [];
+    setEmployees(employeesData);
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+    setEmployees([]);
+  }
+};
 
-  const fetchAllTasks = async () => {
-    try {
-      // Get all tasks assigned by all managers in the organization
-      const allTasks = [];
-      for (const manager of managers) {
-        const response = await axios.get(`${API_BASE}/tasks/manager/${manager.id}`);
-        allTasks.push(...response.data.tasks);
-      }
-      setTasks(allTasks);
-    } catch (error) {
-      console.error('Error fetching tasks:', error);
-      setTasks([]);
-    }
-  };
+const fetchAllTasks = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/tasks/organization/${user.organization_id}`);
+    setTasks(response.data.tasks || []);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    setTasks([]);
+  }
+};
 
   const fetchTaskLogs = async () => {
     try {
@@ -220,34 +127,38 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchTaskStats = async () => {
-    try {
-      // Get stats for the entire organization by aggregating manager stats
-      const allStats = {
-        total_tasks: 0,
-        new_tasks: 0,
-        accepted_tasks: 0,
-        completed_tasks: 0,
-        failed_tasks: 0,
-        high_priority: 0,
-        medium_priority: 0,
-        low_priority: 0
-      };
+const fetchTaskStats = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/tasks/stats/organization/${user.organization_id}`);
+    const stats = response.data.stats;
+    
+    // Convert all stats to numbers (PostgreSQL returns them as strings)
+    const parsedStats = {
+      total_tasks: parseInt(stats.total_tasks) || 0,
+      new_tasks: parseInt(stats.new_tasks) || 0,
+      accepted_tasks: parseInt(stats.accepted_tasks) || 0,
+      completed_tasks: parseInt(stats.completed_tasks) || 0,
+      failed_tasks: parseInt(stats.failed_tasks) || 0,
+      high_priority: parseInt(stats.high_priority) || 0,
+      medium_priority: parseInt(stats.medium_priority) || 0,
+      low_priority: parseInt(stats.low_priority) || 0
+    };
 
-      for (const manager of managers) {
-        const response = await axios.get(`${API_BASE}/tasks/stats/manager/${manager.id}`);
-        const stats = response.data.stats;
-        
-        Object.keys(allStats).forEach(key => {
-          allStats[key] += parseInt(stats[key]) || 0;
-        });
-      }
-
-      setTaskStats(allStats);
-    } catch (error) {
-      console.error('Error fetching task stats:', error);
-    }
-  };
+    setTaskStats(parsedStats);
+  } catch (error) {
+    console.error('Error fetching task stats:', error);
+    setTaskStats({
+      total_tasks: 0,
+      new_tasks: 0,
+      accepted_tasks: 0,
+      completed_tasks: 0,
+      failed_tasks: 0,
+      high_priority: 0,
+      medium_priority: 0,
+      low_priority: 0
+    });
+  }
+};
 
   const refreshData = async () => {
     setRefreshing(true);
@@ -397,39 +308,208 @@ const AdminDashboard = () => {
   const activeTasks = taskStats.new_tasks + taskStats.accepted_tasks;
   const failedTasks = taskStats.failed_tasks;
 
-  const StatsCard = ({ title, value, icon, color, bgColor, subtitle }) => (
-    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>
-          <p className={`text-3xl font-bold ${color} mb-1`}>{value}</p>
-          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+  // Chart data
+  const taskStatusData = {
+    labels: ['New', 'Accepted', 'Completed', 'Failed'],
+    datasets: [
+      {
+        data: [taskStats.new_tasks, taskStats.accepted_tasks, taskStats.completed_tasks, taskStats.failed_tasks],
+        backgroundColor: [
+          'rgba(59, 130, 246, 0.7)',
+          'rgba(234, 179, 8, 0.7)',
+          'rgba(16, 185, 129, 0.7)',
+          'rgba(239, 68, 68, 0.7)'
+        ],
+        borderColor: [
+          'rgba(59, 130, 246, 1)',
+          'rgba(234, 179, 8, 1)',
+          'rgba(16, 185, 129, 1)',
+          'rgba(239, 68, 68, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const taskPriorityData = {
+    labels: ['High', 'Medium', 'Low'],
+    datasets: [
+      {
+        data: [taskStats.high_priority, taskStats.medium_priority, taskStats.low_priority],
+        backgroundColor: [
+          'rgba(239, 68, 68, 0.7)',
+          'rgba(234, 179, 8, 0.7)',
+          'rgba(16, 185, 129, 0.7)'
+        ],
+        borderColor: [
+          'rgba(239, 68, 68, 1)',
+          'rgba(234, 179, 8, 1)',
+          'rgba(16, 185, 129, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const userDistributionData = {
+    labels: ['Managers', 'Employees'],
+    datasets: [
+      {
+        data: [managers.length, employees.length],
+        backgroundColor: [
+          'rgba(139, 92, 246, 0.7)',
+          'rgba(6, 182, 212, 0.7)'
+        ],
+        borderColor: [
+          'rgba(139, 92, 246, 1)',
+          'rgba(6, 182, 212, 1)'
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  // Components
+  const Header = () => (
+    <header className="bg-gradient-to-r from-slate-900 to-indigo-900 text-white p-6 shadow-xl">
+      <div className="max-w-7xl mx-auto flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-2xl">N</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold">{user?.organizationName || 'Organization'}</h1>
+            <p className="text-white/80">Admin Dashboard</p>
+          </div>
         </div>
-        <div className={`w-12 h-12 ${bgColor} rounded-lg flex items-center justify-center`}>
-          {icon}
+        
+        <div className="flex items-center space-x-6">
+          <div className="text-right hidden md:block">
+            <p className="font-medium">{user?.name}</p>
+            <p className="text-sm text-white/80 capitalize">{user?.role}</p>
+          </div>
+          
+          <button
+            onClick={handleLogout}
+            className="bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-700 hover:to-rose-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center"
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Logout
+          </button>
         </div>
       </div>
+    </header>
+  );
+
+  const StatsCard = ({ title, value, icon, color, bgColor, subtitle, chart }) => (
+    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 hover:shadow-xl">
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-sm font-medium text-white/80 mb-1">{title}</p>
+          <p className={`text-3xl font-bold text-white mb-1`}>{value}</p>
+          {subtitle && <p className="text-xs text-white/60">{subtitle}</p>}
+        </div>
+        {icon && (
+          <div className={`w-12 h-12 ${bgColor} rounded-xl flex items-center justify-center text-white`}>
+            {icon}
+          </div>
+        )}
+      </div>
+      {chart && (
+        <div className="mt-4 h-32">
+          {chart}
+        </div>
+      )}
     </div>
   );
 
   const TabButton = ({ id, label, count, isActive, onClick }) => (
     <button
       onClick={onClick}
-      className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
+      className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 relative overflow-hidden group ${
         isActive
-          ? 'bg-blue-600 text-white shadow-lg transform scale-105'
-          : 'bg-white text-gray-600 hover:bg-gray-50 shadow-md hover:shadow-lg'
+          ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-xl'
+          : 'bg-white/5 text-white/80 hover:bg-white/10 hover:text-white'
       }`}
     >
-      {label}
-      {count !== undefined && (
-        <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
-          isActive ? 'bg-white bg-opacity-20' : 'bg-blue-100 text-blue-600'
-        }`}>
-          {count}
-        </span>
+      <span className="relative z-10 flex items-center">
+        {label}
+        {count !== undefined && (
+          <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
+            isActive ? 'bg-white/20' : 'bg-white/10'
+          }`}>
+            {count}
+          </span>
+        )}
+      </span>
+      {isActive && (
+        <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-30"></div>
       )}
     </button>
+  );
+
+  const TaskStatusBadge = ({ status }) => {
+    const statusColors = {
+      new: 'bg-blue-500/20 text-blue-400',
+      accepted: 'bg-yellow-500/20 text-yellow-400',
+      completed: 'bg-green-500/20 text-green-400',
+      failed: 'bg-red-500/20 text-red-400'
+    };
+
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}>
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </span>
+    );
+  };
+
+  const PriorityBadge = ({ priority }) => {
+    const priorityColors = {
+      high: 'bg-red-500/20 text-red-400',
+      medium: 'bg-yellow-500/20 text-yellow-400',
+      low: 'bg-green-500/20 text-green-400'
+    };
+
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${priorityColors[priority]}`}>
+        {priority.charAt(0).toUpperCase() + priority.slice(1)}
+      </span>
+    );
+  };
+
+  const Modal = ({ isOpen, onClose, title, children }) => {
+    if (!isOpen) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-md w-full border border-white/10 shadow-2xl overflow-hidden">
+          <div className="p-6 border-b border-white/10">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white">{title}</h3>
+              <button
+                onClick={onClose}
+                className="text-white/50 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="p-6">
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const LoadingSpinner = () => (
+    <div className="flex justify-center items-center p-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+    </div>
   );
 
   const renderTabContent = () => {
@@ -451,11 +531,101 @@ const AdminDashboard = () => {
 
   const renderOverview = () => (
     <div className="space-y-8">
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatsCard
+          title="Total Users"
+          value={totalUsers}
+          icon={
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          }
+          color="text-white"
+          bgColor="bg-blue-500/20"
+          subtitle={`${managers.length} managers, ${employees.length} employees`}
+          chart={
+            <Pie 
+              data={userDistributionData} 
+              options={{ 
+                plugins: { legend: { display: false } },
+                maintainAspectRatio: false
+              }} 
+            />
+          }
+        />
+        
+        
+<StatsCard
+  title="Total Tasks"
+  value={taskStats.total_tasks}
+  icon={
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+    </svg>
+  }
+  color="text-white"
+  bgColor="bg-purple-500/20"
+  subtitle={`${taskStats.completed_tasks} completed, ${taskStats.failed_tasks} failed`}
+  chart={
+    <Pie 
+      data={taskStatusData} 
+      options={{ 
+        plugins: { legend: { display: false } },
+        maintainAspectRatio: false
+      }} 
+    />
+  }
+/>
+
+<StatsCard
+  title="Active Tasks"
+  value={taskStats.new_tasks + taskStats.accepted_tasks}
+  icon={
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  }
+  color="text-white"
+  bgColor="bg-yellow-500/20"
+  subtitle={`${taskStats.new_tasks} new, ${taskStats.accepted_tasks} in progress`}
+/>
+
+<StatsCard
+  title="Task Priority"
+  value=""
+  icon={
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
+    </svg>
+  }
+  color="text-white"
+  bgColor="bg-gray-500/20"
+  subtitle={
+    <div className="flex justify-between text-xs mt-2 space-x-2">
+      <span className="text-red-400">High: {taskStats.high_priority}</span>
+      <span className="text-yellow-400">Med: {taskStats.medium_priority}</span>
+      <span className="text-green-400">Low: {taskStats.low_priority}</span>
+    </div>
+  }
+  chart={
+    <Bar 
+      data={taskPriorityData} 
+      options={{ 
+        plugins: { legend: { display: false } },
+        scales: { y: { display: false }, x: { grid: { display: false } } },
+        maintainAspectRatio: false
+      }} 
+    />
+  }
+/>
+      </div>
+
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+            <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
             Quick Actions
@@ -463,7 +633,7 @@ const AdminDashboard = () => {
           <div className="space-y-3">
             <button
               onClick={() => openModal('manager')}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center transform hover:scale-105"
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center transform hover:scale-[1.02]"
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -472,10 +642,10 @@ const AdminDashboard = () => {
             </button>
             <button
               onClick={() => openModal('employee')}
-              className={`w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 px-4 rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 flex items-center justify-center transform hover:scale-105 ${
+              disabled={managers.length === 0}
+              className={`w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center transform hover:scale-[1.02] ${
                 managers.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              disabled={managers.length === 0}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -484,146 +654,90 @@ const AdminDashboard = () => {
             </button>
             <button
               onClick={() => openModal('task')}
-              className={`w-full bg-gradient-to-r from-purple-600 to-purple-700 text-white py-3 px-4 rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 flex items-center justify-center transform hover:scale-105 ${
+              disabled={employees.length === 0}
+              className={`w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white py-3 px-4 rounded-xl font-medium transition-all duration-300 flex items-center justify-center transform hover:scale-[1.02] ${
                 employees.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              disabled={employees.length === 0}
             >
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               Create New Task
             </button>
-            {managers.length === 0 && (
-              <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded">
-                Create at least one manager to add employees
-              </p>
-            )}
-            {employees.length === 0 && (
-              <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded">
-                Create at least one employee to assign tasks
-              </p>
-            )}
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            Task Statistics
-          </h3>
-          <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Total Tasks</span>
-              <span className="text-sm font-semibold text-blue-600">
-                {taskStats.total_tasks}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Completed</span>
-              <span className="text-sm font-semibold text-green-600">
-                {taskStats.completed_tasks} ({taskStats.total_tasks > 0 ? Math.round((taskStats.completed_tasks / taskStats.total_tasks) * 100) : 0}%)
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">In Progress</span>
-              <span className="text-sm font-semibold text-yellow-600">
-                {taskStats.new_tasks + taskStats.accepted_tasks}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-gray-600">Failed</span>
-              <span className="text-sm font-semibold text-red-600">
-                {taskStats.failed_tasks}
-              </span>
-            </div>
-            <button
-              onClick={refreshData}
-              disabled={refreshing}
-              className="w-full mt-4 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center"
-            >
-              <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        {/* Recent Tasks */}
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10 col-span-2">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-semibold text-white flex items-center">
+              <svg className="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              {refreshing ? 'Refreshing...' : 'Refresh Data'}
+              Recent Tasks ({tasks.length})
+            </h3>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+            >
+              View All Tasks →
             </button>
           </div>
-        </div>
-      </div>
-
-      {/* Recent Tasks */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Recent Tasks ({tasks.length})
-          </h3>
-          <button
-            onClick={() => setActiveTab('tasks')}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-          >
-            View All Tasks →
-          </button>
-        </div>
-        
-        {tasks.length === 0 ? (
-          <div className="text-center py-8">
-            <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            <p className="text-gray-500">No tasks found. Create your first task to get started.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Title</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Assigned To</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Priority</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-600">Due Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tasks.slice(0, 5).map(task => (
-                  <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-800 font-medium">{task.title}</td>
-                    <td className="py-3 px-4 text-gray-600">{task.assigned_to_name}</td>
-                    <td className="py-3 px-4">
-                      <PriorityBadge priority={task.priority} />
-                    </td>
-                    <td className="py-3 px-4">
-                      <TaskStatusBadge status={task.status} />
-                    </td>
-                    <td className="py-3 px-4 text-gray-600">
-                      {new Date(task.due_date).toLocaleDateString()}
-                    </td>
+          
+          {tasks.length === 0 ? (
+            <div className="text-center py-8">
+              <svg className="w-16 h-16 mx-auto mb-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <p className="text-white/50">No tasks found. Create your first task to get started.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full">
+                <thead>
+                  <tr className="border-b border-white/10">
+                    <th className="text-left py-3 px-4 font-medium text-white/80">Title</th>
+                    <th className="text-left py-3 px-4 font-medium text-white/80">Assigned To</th>
+                    <th className="text-left py-3 px-4 font-medium text-white/80">Priority</th>
+                    <th className="text-left py-3 px-4 font-medium text-white/80">Status</th>
+                    <th className="text-left py-3 px-4 font-medium text-white/80">Due Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody>
+                  {tasks.slice(0, 5).map(task => (
+                    <tr key={task.id} className="border-b border-white/5 hover:bg-white/5">
+                      <td className="py-3 px-4 text-white font-medium">{task.title}</td>
+                      <td className="py-3 px-4 text-white/80">{task.assigned_to_name}</td>
+                      <td className="py-3 px-4">
+                        <PriorityBadge priority={task.priority} />
+                      </td>
+                      <td className="py-3 px-4">
+                        <TaskStatusBadge status={task.status} />
+                      </td>
+                      <td className="py-3 px-4 text-white/80">
+                        {new Date(task.due_date).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Recent Activity Logs */}
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-            <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <h3 className="text-lg font-semibold text-white flex items-center">
+            <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             Recent Activity Logs
           </h3>
           <button
             onClick={() => setActiveTab('logs')}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
           >
             View All Logs →
           </button>
@@ -631,31 +745,31 @@ const AdminDashboard = () => {
         
         {taskLogs.length === 0 ? (
           <div className="text-center py-8">
-            <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-16 h-16 mx-auto mb-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-500">No activity logs found.</p>
+            <p className="text-white/50">No activity logs found.</p>
           </div>
         ) : (
           <div className="space-y-4">
             {taskLogs.slice(0, 5).map(log => (
-              <div key={log.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+              <div key={log.id} className="border-b border-white/10 pb-4 last:border-0 last:pb-0">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="font-medium text-gray-800">
+                    <p className="font-medium text-white">
                       {log.user_name} ({log.user_role})
                     </p>
-                    <p className="text-sm text-gray-600">{log.note}</p>
+                    <p className="text-sm text-white/70">{log.note}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-white/50">
                       {new Date(log.timestamp).toLocaleString()}
                     </p>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      log.action === 'created' ? 'bg-blue-100 text-blue-800' :
-                      log.action === 'accepted' ? 'bg-yellow-100 text-yellow-800' :
-                      log.action === 'completed' ? 'bg-green-100 text-green-800' :
-                      'bg-red-100 text-red-800'
+                      log.action === 'created' ? 'bg-blue-500/20 text-blue-400' :
+                      log.action === 'accepted' ? 'bg-yellow-500/20 text-yellow-400' :
+                      log.action === 'completed' ? 'bg-green-500/20 text-green-400' :
+                      'bg-red-500/20 text-red-400'
                     }`}>
                       {log.action}
                     </span>
@@ -670,17 +784,17 @@ const AdminDashboard = () => {
   );
 
   const renderManagers = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h3 className="text-lg font-semibold text-white flex items-center">
+          <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           Managers ({managers.length})
         </h3>
         <button
           onClick={() => openModal('manager')}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-2 rounded-xl font-medium transition-all duration-300 flex items-center"
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -691,13 +805,13 @@ const AdminDashboard = () => {
       
       {managers.length === 0 ? (
         <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 mx-auto mb-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
-          <p className="text-gray-500 mb-4">No managers found</p>
+          <p className="text-white/50 mb-4">No managers found</p>
           <button
             onClick={() => openModal('manager')}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
           >
             Create Your First Manager
           </button>
@@ -706,13 +820,13 @@ const AdminDashboard = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Email</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Department</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Employees</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Tasks</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 font-medium text-white/80">Name</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Email</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Department</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Employees</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Tasks</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -721,22 +835,22 @@ const AdminDashboard = () => {
                 const managerEmployees = employees.filter(emp => emp.manager_id === manager.id);
                 
                 return (
-                  <tr key={manager.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-800 font-medium">{manager.full_name}</td>
-                    <td className="py-3 px-4 text-gray-600">{manager.email}</td>
-                    <td className="py-3 px-4 text-gray-600">{manager.department}</td>
-                    <td className="py-3 px-4 text-gray-600">
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                  <tr key={manager.id} className="border-b border-white/5 hover:bg-white/5">
+                    <td className="py-3 px-4 text-white font-medium">{manager.full_name}</td>
+                    <td className="py-3 px-4 text-white/80">{manager.email}</td>
+                    <td className="py-3 px-4 text-white/80">{manager.department}</td>
+                    <td className="py-3 px-4">
+                      <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-xs font-medium">
                         {managerEmployees.length}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-600">
-                      <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                    <td className="py-3 px-4">
+                      <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-medium">
                         {managerTasks.length}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
                         Active
                       </span>
                     </td>
@@ -751,10 +865,10 @@ const AdminDashboard = () => {
   );
 
   const renderEmployees = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h3 className="text-lg font-semibold text-white flex items-center">
+          <svg className="w-5 h-5 mr-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
           Employees ({employees.length})
@@ -762,10 +876,10 @@ const AdminDashboard = () => {
         <button
           onClick={() => openModal('employee')}
           disabled={managers.length === 0}
-          className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+          className={`px-6 py-2 rounded-xl font-medium transition-all duration-300 flex items-center ${
             managers.length === 0 
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-              : 'bg-green-600 text-white hover:bg-green-700'
+              ? 'bg-gray-500/20 text-white/50 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white'
           }`}
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -777,16 +891,16 @@ const AdminDashboard = () => {
 
       {employees.length === 0 ? (
         <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 mx-auto mb-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
-          <p className="text-gray-500 mb-4">No employees found</p>
+          <p className="text-white/50 mb-4">No employees found</p>
           {managers.length === 0 ? (
-            <p className="text-sm text-orange-600">Create managers first to add employees</p>
+            <p className="text-sm text-orange-400">Create managers first to add employees</p>
           ) : (
             <button
               onClick={() => openModal('employee')}
-              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
+              className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
             >
               Add Your First Employee
             </button>
@@ -796,13 +910,13 @@ const AdminDashboard = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Name</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Email</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Position</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Manager</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Tasks</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 font-medium text-white/80">Name</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Email</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Position</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Manager</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Tasks</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -811,20 +925,20 @@ const AdminDashboard = () => {
                 const employeeTasks = tasks.filter(t => t.assigned_to === employee.id);
                 
                 return (
-                  <tr key={employee.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-800 font-medium">{employee.full_name}</td>
-                    <td className="py-3 px-4 text-gray-600">{employee.email}</td>
-                    <td className="py-3 px-4 text-gray-600">{employee.position}</td>
-                    <td className="py-3 px-4 text-gray-600">
+                  <tr key={employee.id} className="border-b border-white/5 hover:bg-white/5">
+                    <td className="py-3 px-4 text-white font-medium">{employee.full_name}</td>
+                    <td className="py-3 px-4 text-white/80">{employee.email}</td>
+                    <td className="py-3 px-4 text-white/80">{employee.position}</td>
+                    <td className="py-3 px-4 text-white/80">
                       {manager ? `${manager.full_name} (${manager.department})` : 'Unassigned'}
                     </td>
                     <td className="py-3 px-4">
-                      <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">
+                      <span className="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-xs font-medium">
                         {employeeTasks.length}
                       </span>
                     </td>
                     <td className="py-3 px-4">
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
                         Active
                       </span>
                     </td>
@@ -839,10 +953,10 @@ const AdminDashboard = () => {
   );
 
   const renderTasks = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h3 className="text-lg font-semibold text-white flex items-center">
+          <svg className="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           Tasks ({tasks.length})
@@ -851,10 +965,10 @@ const AdminDashboard = () => {
           <button
             onClick={() => openModal('task')}
             disabled={employees.length === 0}
-            className={`px-4 py-2 rounded-lg transition-colors flex items-center ${
+            className={`px-6 py-2 rounded-xl font-medium transition-all duration-300 flex items-center ${
               employees.length === 0 
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
-                : 'bg-purple-600 text-white hover:bg-purple-700'
+                ? 'bg-gray-500/20 text-white/50 cursor-not-allowed' 
+                : 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white'
             }`}
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -867,16 +981,16 @@ const AdminDashboard = () => {
 
       {tasks.length === 0 ? (
         <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 mx-auto mb-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
-          <p className="text-gray-500 mb-4">No tasks found</p>
+          <p className="text-white/50 mb-4">No tasks found</p>
           {employees.length === 0 ? (
-            <p className="text-sm text-orange-600">Create employees first to assign tasks</p>
+            <p className="text-sm text-orange-400">Create employees first to assign tasks</p>
           ) : (
             <button
               onClick={() => openModal('task')}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition-colors"
+              className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300"
             >
               Create Your First Task
             </button>
@@ -886,15 +1000,15 @@ const AdminDashboard = () => {
         <div className="overflow-x-auto">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Title</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Description</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Assigned To</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Assigned By</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Priority</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Due Date</th>
-                <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 font-medium text-white/80">Title</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Description</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Assigned To</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Assigned By</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Priority</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Status</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Due Date</th>
+                <th className="text-left py-3 px-4 font-medium text-white/80">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -903,11 +1017,11 @@ const AdminDashboard = () => {
                                  employees.find(e => e.id === task.assigned_by);
                 
                 return (
-                  <tr key={task.id} className="border-b border-gray-100 hover:bg-gray-50">
-                    <td className="py-3 px-4 text-gray-800 font-medium">{task.title}</td>
-                    <td className="py-3 px-4 text-gray-600 max-w-xs truncate">{task.description}</td>
-                    <td className="py-3 px-4 text-gray-600">{task.assigned_to_name}</td>
-                    <td className="py-3 px-4 text-gray-600">
+                  <tr key={task.id} className="border-b border-white/5 hover:bg-white/5">
+                    <td className="py-3 px-4 text-white font-medium">{task.title}</td>
+                    <td className="py-3 px-4 text-white/80 max-w-xs truncate">{task.description}</td>
+                    <td className="py-3 px-4 text-white/80">{task.assigned_to_name}</td>
+                    <td className="py-3 px-4 text-white/80">
                       {assignedBy ? assignedBy.full_name : 'Unknown'}
                     </td>
                     <td className="py-3 px-4">
@@ -916,13 +1030,13 @@ const AdminDashboard = () => {
                     <td className="py-3 px-4">
                       <TaskStatusBadge status={task.status} />
                     </td>
-                    <td className="py-3 px-4 text-gray-600">
+                    <td className="py-3 px-4 text-white/80">
                       {new Date(task.due_date).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() => deleteTask(task.id)}
-                        className="text-red-600 hover:text-red-800 text-sm font-medium"
+                        className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors"
                       >
                         Delete
                       </button>
@@ -938,10 +1052,10 @@ const AdminDashboard = () => {
   );
 
   const renderTaskLogs = () => (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border border-white/10">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-          <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h3 className="text-lg font-semibold text-white flex items-center">
+          <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           Task Activity Logs ({taskLogs.length})
@@ -949,7 +1063,7 @@ const AdminDashboard = () => {
         <button
           onClick={refreshData}
           disabled={refreshing}
-          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center"
+          className="px-6 py-2 bg-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-colors flex items-center"
         >
           <svg className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -960,34 +1074,34 @@ const AdminDashboard = () => {
 
       {taskLogs.length === 0 ? (
         <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-16 h-16 mx-auto mb-4 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <p className="text-gray-500">No activity logs found.</p>
+          <p className="text-white/50">No activity logs found.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {taskLogs.map(log => (
-            <div key={log.id} className="border-b border-gray-100 pb-4 last:border-0 last:pb-0">
+            <div key={log.id} className="border-b border-white/10 pb-4 last:border-0 last:pb-0">
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="font-medium text-gray-800">
+                  <p className="font-medium text-white">
                     {log.user_name} ({log.user_role})
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-white/70">
                     <span className="font-medium">Task:</span> {log.task_title} ({log.task_priority})
                   </p>
-                  <p className="text-sm text-gray-600">{log.note}</p>
+                  <p className="text-sm text-white/70">{log.note}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-white/50">
                     {new Date(log.timestamp).toLocaleString()}
                   </p>
                   <span className={`text-xs px-2 py-1 rounded-full ${
-                    log.action === 'created' ? 'bg-blue-100 text-blue-800' :
-                    log.action === 'accepted' ? 'bg-yellow-100 text-yellow-800' :
-                    log.action === 'completed' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
+                    log.action === 'created' ? 'bg-blue-500/20 text-blue-400' :
+                    log.action === 'accepted' ? 'bg-yellow-500/20 text-yellow-400' :
+                    log.action === 'completed' ? 'bg-green-500/20 text-green-400' :
+                    'bg-red-500/20 text-red-400'
                   }`}>
                     {log.action}
                   </span>
@@ -1001,78 +1115,18 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <Header user={user} onLogout={handleLogout} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+      <Header />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">Admin Dashboard 👑</h1>
-          <p className="text-gray-600">Manage your organization, managers, and employees.</p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatsCard
-            title="Total Users"
-            value={totalUsers}
-            color="text-blue-600"
-            bgColor="bg-blue-100"
-            icon={
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-            }
-            subtitle={`${managers.length} managers, ${employees.length} employees`}
-          />
-          <StatsCard
-            title="Total Tasks"
-            value={taskStats.total_tasks}
-            color="text-purple-600"
-            bgColor="bg-purple-100"
-            icon={
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            }
-            subtitle={`${completedTasks} completed, ${failedTasks} failed`}
-          />
-          <StatsCard
-            title="Active Tasks"
-            value={activeTasks}
-            color="text-yellow-600"
-            bgColor="bg-yellow-100"
-            icon={
-              <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            }
-            subtitle={`${taskStats.new_tasks} new, ${taskStats.accepted_tasks} in progress`}
-          />
-          <StatsCard
-            title="Task Priority"
-            value=""
-            color="text-gray-600"
-            bgColor="bg-gray-100"
-            icon={
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z" />
-              </svg>
-            }
-            subtitle={
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span>High: {taskStats.high_priority}</span>
-                  <span>Medium: {taskStats.medium_priority}</span>
-                  <span>Low: {taskStats.low_priority}</span>
-                </div>
-              </div>
-            }
-          />
+          <h1 className="text-4xl font-bold text-white mb-2">Welcome, {user?.name}</h1>
+          <p className="text-white/80 text-xl">Manage your organization's workforce and tasks</p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex flex-wrap gap-4 mb-8">
+        <div className="flex flex-wrap gap-3 mb-8">
           <TabButton
             id="overview"
             label="Overview"
@@ -1123,42 +1177,42 @@ const AdminDashboard = () => {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label className="block text-sm font-medium text-white/80 mb-1">Full Name</label>
             <input
               type="text"
               value={newManager.name}
               onChange={(e) => setNewManager({...newManager, name: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-white/80 mb-1">Email</label>
             <input
               type="email"
               value={newManager.email}
               onChange={(e) => setNewManager({...newManager, email: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+            <label className="block text-sm font-medium text-white/80 mb-1">Department</label>
             <input
               type="text"
               value={newManager.department}
               onChange={(e) => setNewManager({...newManager, department: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <label className="block text-sm font-medium text-white/80 mb-1">Password</label>
             <input
               type="password"
               value={newManager.password}
               onChange={(e) => setNewManager({...newManager, password: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               placeholder="Leave blank for default (manager123)"
             />
           </div>
@@ -1166,14 +1220,14 @@ const AdminDashboard = () => {
             <button
               type="button"
               onClick={closeModal}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleCreateManager}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-colors"
             >
               Create Manager
             </button>
@@ -1186,80 +1240,81 @@ const AdminDashboard = () => {
         onClose={closeModal}
         title="Add New Employee"
       >
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <input
-              type="text"
-              value={newEmployee.name}
-              onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+        <form onSubmit={handleCreateEmployee}>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1">Full Name</label>
+              <input
+                type="text"
+                value={newEmployee.name}
+                onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1">Email</label>
+              <input
+                type="email"
+                value={newEmployee.email}
+                onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1">Position</label>
+              <input
+                type="text"
+                value={newEmployee.position}
+                onChange={(e) => setNewEmployee({...newEmployee, position: e.target.value})}
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1">Assign to Manager</label>
+              <select
+                value={newEmployee.managerId}
+                onChange={(e) => setNewEmployee({...newEmployee, managerId: e.target.value})}
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                required
+              >
+                <option className="bg-black" value="">Select Manager</option>
+                {managers.map(manager => (
+                  <option className="bg-black" key={manager.id} value={manager.id}>
+                    {manager.full_name} - {manager.department}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-white/80 mb-1">Password</label>
+              <input
+                type="password"
+                value={newEmployee.password}
+                onChange={(e) => setNewEmployee({...newEmployee, password: e.target.value})}
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
+                placeholder="Leave blank for default (emp123)"
+              />
+            </div>
+            <div className="flex space-x-3 pt-4">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl hover:from-green-700 hover:to-green-800 transition-colors"
+              >
+                Create Employee
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={newEmployee.email}
-              onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Position</label>
-            <input
-              type="text"
-              value={newEmployee.position}
-              onChange={(e) => setNewEmployee({...newEmployee, position: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Assign to Manager</label>
-            <select
-              value={newEmployee.managerId}
-              onChange={(e) => setNewEmployee({...newEmployee, managerId: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            >
-              <option value="">Select Manager</option>
-              {managers.map(manager => (
-                <option key={manager.id} value={manager.id}>
-                  {manager.full_name} - {manager.department}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input
-              type="password"
-              value={newEmployee.password}
-              onChange={(e) => setNewEmployee({...newEmployee, password: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Leave blank for default (emp123)"
-            />
-          </div>
-          <div className="flex space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={closeModal}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleCreateEmployee}
-              className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-            >
-              Create Employee
-            </button>
-          </div>
-        </div>
+        </form>
       </Modal>
 
       <Modal
@@ -1270,30 +1325,30 @@ const AdminDashboard = () => {
         <form onSubmit={handleCreateTask}>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Title*</label>
+              <label className="block text-sm font-medium text-white/80 mb-1">Title*</label>
               <input
                 type="text"
                 value={newTask.title}
                 onChange={(e) => setNewTask({...newTask, title: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+              <label className="block text-sm font-medium text-white/80 mb-1">Description</label>
               <textarea
                 value={newTask.description}
                 onChange={(e) => setNewTask({...newTask, description: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 rows="3"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority*</label>
+              <label className="block text-sm font-medium text-white/80 mb-1">Priority*</label>
               <select
                 value={newTask.priority}
                 onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               >
                 <option value="high">High</option>
@@ -1302,11 +1357,11 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Assign To*</label>
+              <label className="block text-sm font-medium text-white/80 mb-1">Assign To*</label>
               <select
                 value={newTask.assigned_to}
                 onChange={(e) => setNewTask({...newTask, assigned_to: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               >
                 <option value="">Select Employee</option>
@@ -1318,12 +1373,12 @@ const AdminDashboard = () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date*</label>
+              <label className="block text-sm font-medium text-white/80 mb-1">Due Date*</label>
               <input
                 type="date"
                 value={newTask.due_date}
                 onChange={(e) => setNewTask({...newTask, due_date: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               />
             </div>
@@ -1331,13 +1386,13 @@ const AdminDashboard = () => {
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-colors"
               >
                 Create Task
               </button>

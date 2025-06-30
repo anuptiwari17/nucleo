@@ -25,371 +25,136 @@ const NewTask = ({ tasks, onAccept }) => {
 
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
-      case 'high': return 'text-red-600 bg-red-100';
-      case 'medium': return 'text-yellow-600 bg-yellow-100';
-      case 'low': return 'text-green-600 bg-green-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'high': return 'text-red-400 bg-red-500/20 border-red-500/30';
+      case 'medium': return 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30';
+      case 'low': return 'text-green-400 bg-green-500/20 border-green-500/30';
+      default: return 'text-gray-400 bg-gray-500/20 border-gray-500/30';
     }
+  };
+
+  const getDaysLeft = (dueDate) => {
+    if (!dueDate) return null;
+    const today = new Date();
+    const due = new Date(dueDate);
+    const diffTime = due - today;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
   if (!tasks || tasks.length === 0) {
     return (
-      <div className="bg-white rounded-xl shadow-lg p-6">
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+            <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-800">New Tasks</h2>
+          <h2 className="text-xl font-bold text-white">New Tasks</h2>
         </div>
         
         <div className="text-center py-12">
-          <svg className="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <p className="text-gray-500 text-lg">No new tasks available</p>
-          <p className="text-gray-400 text-sm mt-2">Check back later for new assignments</p>
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <p className="text-white/80 text-lg">No new tasks available</p>
+          <p className="text-white/60 text-sm mt-2">Check back later for new assignments</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6">
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg p-6">
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+          <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-gray-800">New Tasks</h2>
-        <span className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded-full">
+        <h2 className="text-xl font-bold text-white">New Tasks</h2>
+        <span className="bg-blue-500/20 text-blue-400 text-sm font-medium px-2.5 py-0.5 rounded-full">
           {tasks.length}
         </span>
       </div>
 
       <div className="space-y-4">
-        {tasks.map((task) => (
-          <div key={task.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex-1">
-                <h3 className="font-semibold text-gray-800 text-lg mb-1">{task.title}</h3>
-                {task.description && (
-                  <p className="text-gray-600 text-sm mb-2">{task.description}</p>
-                )}
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  <span>Due: {formatDate(task.due_date || task.dueDate)}</span>
-                  <span>Assigned by: {task.assigned_by_name || task.assignedBy}</span>
+        {tasks.map((task) => {
+          const daysLeft = getDaysLeft(task.due_date || task.dueDate);
+          
+          return (
+            <div 
+              key={task.id} 
+              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-5 hover:shadow-lg transition-all duration-300 hover:scale-[1.01]"
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white text-lg mb-2">{task.title}</h3>
+                  {task.description && (
+                    <p className="text-white/80 text-sm mb-3">{task.description}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>Due: {formatDate(task.due_date || task.dueDate)}</span>
+                      {daysLeft !== null && (
+                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                          daysLeft < 0 ? 'bg-red-500/20 text-red-400' :
+                          daysLeft <= 2 ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-green-500/20 text-green-400'
+                        }`}>
+                          {daysLeft < 0 ? `${Math.abs(daysLeft)} days overdue` :
+                           daysLeft === 0 ? 'Due today' :
+                           `${daysLeft} days left`}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Assigned by: {task.assigned_by_name || task.assignedBy}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-3">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(task.priority)}`}>
+                    {task.priority || 'Normal'}
+                  </span>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(task.priority)}`}>
-                  {task.priority || 'Normal'}
-                </span>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={() => handleAcceptTask(task.id)}
+                  disabled={accepting === task.id}
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-4 py-2 rounded-lg hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                >
+                  {accepting === task.id ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Accepting...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      Accept Task
+                    </>
+                  )}
+                </button>
               </div>
             </div>
-
-            <div className="flex justify-end">
-              <button
-                onClick={() => handleAcceptTask(task.id)}
-                disabled={accepting === task.id}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-              >
-                {accepting === task.id ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Accepting...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Accept Task
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 };
 
 export default NewTask;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// the below is the prevoius version --  just keeping it here if required in fututre -- 
-// import React, { useState, useEffect } from 'react';
-
-// const NewTask = () => {
-//   const [tasks, setTasks] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [accepting, setAccepting] = useState(null); // Track which task is being accepted
-
-//   // Fetch new tasks on component mount
-//   useEffect(() => {
-//     fetchNewTasks();
-//   }, []);
-
-//   const fetchNewTasks = async () => {
-//     try {
-//       setLoading(true);
-//       setError(null);
-      
-//       const token = localStorage.getItem('token');
-//       const response = await fetch('/api/tasks/new', {
-//         method: 'GET',
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//           'Content-Type': 'application/json'
-//         }
-//       });
-
-//       if (!response.ok) {
-//         throw new Error('Failed to fetch tasks');
-//       }
-
-//       const data = await response.json();
-//       setTasks(data.tasks || []);
-//     } catch (err) {
-//       console.error('Error fetching new tasks:', err);
-//       setError('Failed to load new tasks. Please try again.');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleAcceptTask = async (taskId) => {
-//     try {
-//       setAccepting(taskId);
-//       setError(null);
-
-//       const token = localStorage.getItem('token');
-//       const response = await fetch(`/api/tasks/accept/${taskId}`, {
-//         method: 'PATCH',
-//         headers: {
-//           'Authorization': `Bearer ${token}`,
-//           'Content-Type': 'application/json'
-//         }
-//       });
-
-//       if (!response.ok) {
-//         const errorData = await response.json();
-//         throw new Error(errorData.error || 'Failed to accept task');
-//       }
-
-//       // Removing the accepted task from the list
-//       setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
-      
-//       alert('Task accepted successfully!');
-      
-//     } catch (err) {
-//       console.error('Error accepting task:', err);
-//       setError(`Failed to accept task: ${err.message}`);
-//     } finally {
-//       setAccepting(null);
-//     }
-//   };
-
-//   const TaskCard = ({ task }) => {
-//     const getPriorityColor = (priority) => {
-//       switch (priority) {
-//         case 'High': return 'bg-red-50 border-red-200 text-red-800';
-//         case 'Medium': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-//         case 'Low': return 'bg-green-50 border-green-200 text-green-800';
-//         default: return 'bg-gray-50 border-gray-200 text-gray-800';
-//       }
-//     };
-
-//     const getPriorityDot = (priority) => {
-//       switch (priority) {
-//         case 'High': return 'bg-red-500';
-//         case 'Medium': return 'bg-yellow-500';
-//         case 'Low': return 'bg-green-500';
-//         default: return 'bg-gray-500';
-//       }
-//     };
-
-//     const isAccepting = accepting === task.id;
-
-//     return (
-//       <div className="bg-white rounded-lg shadow-md border-l-4 border-l-blue-500 hover:shadow-lg transition-all duration-300 hover:scale-105">
-//         <div className="p-5">
-//           <div className="flex justify-between items-start mb-4">
-//             <div className="flex items-center space-x-2">
-//               <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-//               <span className="text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded-full">
-//                 NEW
-//               </span>
-//             </div>
-//             <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium border ${getPriorityColor(task.priority)}`}>
-//               <div className={`w-2 h-2 rounded-full ${getPriorityDot(task.priority)}`}></div>
-//               <span>{task.priority}</span>
-//             </div>
-//           </div>
-          
-//           <h3 className="font-semibold text-gray-800 text-lg mb-3 leading-tight">{task.title}</h3>
-          
-//           {task.description && (
-//             <p className="text-gray-600 text-sm mb-4 leading-relaxed">{task.description}</p>
-//           )}
-          
-//           <div className="space-y-2 text-sm text-gray-600 mb-4">
-//             <div className="flex items-center space-x-2">
-//               <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-//               </svg>
-//               <span><span className="font-medium">Assigned by:</span> {task.assignedBy}</span>
-//             </div>
-//             {task.dueDate && (
-//               <div className="flex items-center space-x-2">
-//                 <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-//                 </svg>
-//                 <span><span className="font-medium">Due:</span> {task.dueDate}</span>
-//               </div>
-//             )}
-//           </div>
-
-//           <button
-//             onClick={() => handleAcceptTask(task.id)}
-//             disabled={isAccepting}
-//             className={`w-full text-white px-4 py-3 rounded-lg font-medium transition-all duration-200 transform shadow-lg hover:shadow-xl ${
-//               isAccepting 
-//                 ? 'bg-gray-400 cursor-not-allowed' 
-//                 : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:scale-105'
-//             }`}
-//           >
-//             <div className="flex items-center justify-center space-x-2">
-//               {isAccepting ? (
-//                 <>
-//                   <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-//                   </svg>
-//                   <span>Accepting...</span>
-//                 </>
-//               ) : (
-//                 <>
-//                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-//                   </svg>
-//                   <span>Accept Task</span>
-//                 </>
-//               )}
-//             </div>
-//           </button>
-//         </div>
-//       </div>
-//     );
-//   };
-
-//   if (loading) {
-//     return (
-//       <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-//         <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
-//           <div className="flex items-center space-x-3 text-white">
-//             <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-//               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-//               </svg>
-//             </div>
-//             <div>
-//               <h2 className="text-xl font-bold">New Tasks</h2>
-//               <p className="text-blue-100 text-sm">Loading tasks...</p>
-//             </div>
-//           </div>
-//         </div>
-        
-//         <div className="p-6">
-//           <div className="text-center py-12">
-//             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-//               <svg className="w-8 h-8 text-gray-400 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-//               </svg>
-//             </div>
-//             <p className="text-gray-500 text-lg">Loading new tasks...</p>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-//       <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6">
-//         <div className="flex items-center justify-between">
-//           <div className="flex items-center space-x-3 text-white">
-//             <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-//               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-//               </svg>
-//             </div>
-//             <div>
-//               <h2 className="text-xl font-bold">New Tasks</h2>
-//               <p className="text-blue-100 text-sm">{tasks.length} pending tasks</p>
-//             </div>
-//           </div>
-//           <button
-//             onClick={fetchNewTasks}
-//             className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-3 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-//           >
-//             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-//             </svg>
-//             <span>Refresh</span>
-//           </button>
-//         </div>
-//       </div>
-      
-//       <div className="p-6">
-//         {error && (
-//           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4">
-//             <div className="flex items-center space-x-2">
-//               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-//               </svg>
-//               <span>{error}</span>
-//             </div>
-//           </div>
-//         )}
-
-//         {tasks.length === 0 ? (
-//           <div className="text-center py-12">
-//             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-//               <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-//                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-//               </svg>
-//             </div>
-//             <p className="text-gray-500 text-lg">No new tasks available</p>
-//             <p className="text-gray-400 text-sm mt-1">Check back later for new assignments</p>
-//           </div>
-//         ) : (
-//           <div className="grid gap-6">
-//             {tasks.map(task => (
-//               <TaskCard key={task.id} task={task} />
-//             ))}
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default NewTask;

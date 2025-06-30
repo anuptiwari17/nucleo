@@ -176,35 +176,55 @@ router.get('/managers/:organizationId', async (req, res) => {
 
 
 
-// GET /api/users/employees/:organizationId - Fetch employees under a manager
+// GET /api/users/employees/:organizationId - Fetch all employees in an organization
 router.get('/employees/:organizationId', async (req, res) => {
   try {
     const { organizationId } = req.params;
     const { manager_id } = req.query;
 
-    if (!manager_id) {
-      return res.status(400).json({
-        success: false,
-        message: 'manager_id is required as query parameter'
-      });
+    let query;
+    let params;
+
+    if (manager_id) {
+      // Fetch employees for a specific manager
+      query = `
+        SELECT 
+          id,
+          full_name,
+          email,
+          department,
+          position,
+          created_at,
+          manager_id
+        FROM users 
+        WHERE organization_id = $1 
+          AND manager_id = $2 
+          AND role = 'employee'
+        ORDER BY full_name ASC
+      `;
+      params = [organizationId, manager_id];
+    } else {
+      // Fetch all employees in the organization
+      query = `
+        SELECT 
+          u.id,
+          u.full_name,
+          u.email,
+          u.department,
+          u.position,
+          u.created_at,
+          u.manager_id,
+          m.full_name as manager_name
+        FROM users u
+        LEFT JOIN users m ON u.manager_id = m.id
+        WHERE u.organization_id = $1 
+          AND u.role = 'employee'
+        ORDER BY u.full_name ASC
+      `;
+      params = [organizationId];
     }
 
-    const query = `
-      SELECT 
-        id,
-        full_name,
-        email,
-        department,
-        position,
-        created_at
-      FROM users 
-      WHERE organization_id = $1 
-        AND manager_id = $2 
-        AND role = 'employee'
-      ORDER BY full_name ASC
-    `;
-
-    const result = await pool.query(query, [organizationId, manager_id]);
+    const result = await pool.query(query, params);
 
     res.status(200).json({
       success: true,
@@ -220,7 +240,6 @@ router.get('/employees/:organizationId', async (req, res) => {
     });
   }
 });
-
 
 
 module.exports = router;

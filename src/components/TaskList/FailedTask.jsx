@@ -1,20 +1,21 @@
+import React from 'react';
 
 const FailedTask = ({ tasks }) => {
   const TaskCard = ({ task }) => {
     const getPriorityColor = (priority) => {
-      switch (priority) {
-        case 'High': return 'bg-red-50 border-red-200 text-red-800';
-        case 'Medium': return 'bg-yellow-50 border-yellow-200 text-yellow-800';
-        case 'Low': return 'bg-green-50 border-green-200 text-green-800';
-        default: return 'bg-gray-50 border-gray-200 text-gray-800';
+      switch (priority?.toLowerCase()) {
+        case 'high': return 'bg-red-500/20 text-red-400 border-red-500/30';
+        case 'medium': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+        case 'low': return 'bg-green-500/20 text-green-400 border-green-500/30';
+        default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
       }
     };
 
     const getPriorityDot = (priority) => {
-      switch (priority) {
-        case 'High': return 'bg-red-500';
-        case 'Medium': return 'bg-yellow-500';
-        case 'Low': return 'bg-green-500';
+      switch (priority?.toLowerCase()) {
+        case 'high': return 'bg-red-500';
+        case 'medium': return 'bg-yellow-500';
+        case 'low': return 'bg-green-500';
         default: return 'bg-gray-500';
       }
     };
@@ -28,19 +29,28 @@ const FailedTask = ({ tasks }) => {
       return diffDays;
     };
 
+    const formatDate = (dateString) => {
+      if (!dateString) return 'No date';
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    };
+
     const workingTime = getWorkingTime(task.acceptedDate, task.failedDate);
 
     return (
-      <div className="bg-white rounded-lg shadow-md border-l-4 border-l-red-500 hover:shadow-lg transition-all duration-300">
-        <div className="p-5">
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+        <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-6 h-6 bg-red-500/20 rounded-full flex items-center justify-center border border-red-500/30">
+                <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </div>
-              <span className="text-xs font-medium text-red-600 bg-red-100 px-2 py-1 rounded-full">
+              <span className="text-xs font-medium text-yellow-400 bg-red-500/20 px-2 py-1 rounded-full">
                 FAILED
               </span>
             </div>
@@ -50,34 +60,34 @@ const FailedTask = ({ tasks }) => {
             </div>
           </div>
           
-          <h3 className="font-semibold text-gray-800 text-lg mb-3 leading-tight">{task.title}</h3>
+          <h3 className="font-semibold text-white text-lg mb-3 leading-tight">{task.title}</h3>
           
-          <div className="space-y-2 text-sm text-gray-600 mb-4">
+          <div className="space-y-2 text-sm text-white/80 mb-4">
             <div className="flex items-center space-x-2">
-              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
               <span><span className="font-medium">Assigned by:</span> {task.assignedBy}</span>
             </div>
             {task.failedDate && (
               <div className="flex items-center space-x-2">
-                <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span><span className="font-medium">Failed on:</span> {task.failedDate}</span>
+                <span><span className="font-medium">Failed on:</span> {formatDate(task.failedDate)}</span>
               </div>
             )}
             {task.dueDate && (
               <div className="flex items-center space-x-2">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                <span><span className="font-medium">Original Due:</span> {task.dueDate}</span>
+                <span><span className="font-medium">Original Due:</span> {formatDate(task.dueDate)}</span>
               </div>
             )}
             {workingTime && (
               <div className="flex items-center space-x-2">
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span><span className="font-medium">Worked for:</span> {workingTime} {workingTime === 1 ? 'day' : 'days'}</span>
@@ -85,34 +95,38 @@ const FailedTask = ({ tasks }) => {
             )}
           </div>
 
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-            <div className="flex items-start space-x-2 text-red-700">
-              <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <span className="font-medium text-sm block mb-1">Failure Reason:</span>
-                <p className="text-sm text-red-600">{task.reason || 'No reason provided'}</p>
-              </div>
-            </div>
-          </div>
+      
+<div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 backdrop-blur-sm">
+  <div className="flex items-start space-x-2 text-red-400">
+    <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <div>
+      <span className="font-medium text-sm block mb-1">Failure Reason:</span>
+      <p className="text-sm text-red-300">
+        {/* Check both possible properties where reason might be stored */}
+        {task.reason_failed || 'No reason provided'}
+      </p>
+    </div>
+  </div>
+</div>
         </div>
       </div>
     );
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-red-600 to-red-700 p-6">
+    <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-lg overflow-hidden">
+      <div className="bg-gradient-to-r from-red-500 to-pink-600 p-6">
         <div className="flex items-center space-x-3 text-white">
-          <div className="w-10 h-10 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
           <div>
             <h2 className="text-xl font-bold">Failed Tasks</h2>
-            <p className="text-red-100 text-sm">{tasks.length} tasks failed</p>
+            <p className="text-white/80 text-sm">{tasks.length} tasks failed</p>
           </div>
         </div>
       </div>
@@ -120,13 +134,13 @@ const FailedTask = ({ tasks }) => {
       <div className="p-6">
         {tasks.length === 0 ? (
           <div className="text-center py-12">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-gray-500 text-lg">No failed tasks</p>
-            <p className="text-gray-400 text-sm mt-1">Great job! Keep up the good work</p>
+            <p className="text-white/80 text-lg">No failed tasks</p>
+            <p className="text-white/60 text-sm mt-1">Great job! Keep up the good work</p>
           </div>
         ) : (
           <div className="grid gap-6">

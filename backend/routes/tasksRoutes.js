@@ -239,7 +239,7 @@ router.get('/employee/:employeeId', async (req, res) => {
     res.status(200).json({
       success: true,
       tasks: result.rows,
-      count: result.rows.length // Added for convenience
+      count: result.rows.length
     });
     
   } catch (error) {
@@ -427,47 +427,44 @@ router.put('/:taskId/fail', async (req, res) => {
   }
 });
 
-//GET /api/tasks/stats/manager/:managerId - Get task statistics for manager
-router.get('/stats/manager/:managerId', async (req, res) => {
+
+
+
+router.get('/stats/organization/:organizationId', async (req, res) => {
   try {
-    const { managerId } = req.params;
+    const { organizationId } = req.params;
     
-    const query = `
+    const statsQuery = `
       SELECT 
         COUNT(*) as total_tasks,
-        COUNT(CASE WHEN status = 'new' THEN 1 END) as new_tasks,
-        COUNT(CASE WHEN status = 'accepted' THEN 1 END) as accepted_tasks,
-        COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_tasks,
-        COUNT(CASE WHEN status = 'failed' THEN 1 END) as failed_tasks,
-        COUNT(CASE WHEN priority = 'high' THEN 1 END) as high_priority,
-        COUNT(CASE WHEN priority = 'medium' THEN 1 END) as medium_priority,
-        COUNT(CASE WHEN priority = 'low' THEN 1 END) as low_priority
-      FROM tasks 
-      WHERE assigned_by = $1
+        SUM(CASE WHEN status = 'new' THEN 1 ELSE 0 END) as new_tasks,
+        SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted_tasks,
+        SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed_tasks,
+        SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END) as failed_tasks,
+        SUM(CASE WHEN priority = 'high' THEN 1 ELSE 0 END) as high_priority,
+        SUM(CASE WHEN priority = 'medium' THEN 1 ELSE 0 END) as medium_priority,
+        SUM(CASE WHEN priority = 'low' THEN 1 ELSE 0 END) as low_priority
+      FROM tasks
+      WHERE organization_id = $1
     `;
     
-    const result = await pool.query(query, [managerId]);
-    const stats = result.rows[0];
+    const result = await pool.query(statsQuery, [organizationId]);
     
-    // Convert string numbers to integers - PostgreSQL returns numbers as strings isliye ye karna padega
-    Object.keys(stats).forEach(key => {
-      stats[key] = parseInt(stats[key]) || 0;
-    });
-    
-    res.status(200).json({
+    res.json({ 
       success: true,
-      stats: stats
+      stats: result.rows[0] 
     });
-    
-  } catch (error) {
-    console.error('Error fetching task stats:', error);
+  } catch (err) {
+    console.error(err.message);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch task statistics',
-      error: error.message
+      message: 'Failed to fetch task stats'
     });
   }
 });
+
+
+
 
 //GET /api/tasks/stats/employee/:employeeId - Get task statistics for employee
 router.get('/stats/employee/:employeeId', async (req, res) => {
@@ -575,6 +572,29 @@ router.delete('/:taskId', async (req, res) => {
       message: 'Failed to delete task',
       error: error.message
     });
+  }
+});
+
+
+
+router.get('/organization/:organizationId', async (req, res) => {
+  try {
+    const { organizationId } = req.params;
+    const result = await pool.query(`
+      SELECT t.*, 
+        a.full_name as assigned_to_name,
+        b.full_name as assigned_by_name
+      FROM tasks t
+      JOIN users a ON t.assigned_to = a.id
+      JOIN users b ON t.assigned_by = b.id
+      WHERE t.organization_id = $1
+      ORDER BY t.created_at DESC
+    `, [organizationId]);
+    
+    res.json({ tasks: result.rows });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server Error");
   }
 });
 

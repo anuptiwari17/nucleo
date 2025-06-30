@@ -3,11 +3,10 @@ const router = express.Router();
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 
-// login routee
+// login route
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase();
-
 
   try {
     const userRes = await pool.query("SELECT * FROM users WHERE LOWER(email) = $1", [normalizedEmail]);
@@ -23,7 +22,7 @@ router.post("/login", async (req, res) => {
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      console.log("Passwordawa match nhi hua");
+      console.log("Password did not match");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -46,31 +45,57 @@ router.post("/login", async (req, res) => {
 
 // signup route
 router.post("/signup", async (req, res) => {
-  const { full_name, email, password, role, organization_id } = req.body;
-
+  const { firstName, lastName, email, password, organizationName, role } = req.body;
+  
   try {
+    // Start transaction
+    await pool.query('BEGIN');
+    
+    // creating organization first
+    const orgResult = await pool.query(
+      "INSERT INTO organizations (name) VALUES ($1) RETURNING id",
+      [organizationName]
+    );
+    const organizationId = orgResult.rows[0].id;
+    
+    // creating user with organization reference - yhi process thik rahega!!
+    const fullName = `${firstName} ${lastName}`;
     const hashedPassword = await bcrypt.hash(password, 10);
+    
     const newUser = await pool.query(
       "INSERT INTO users (full_name, email, password_hash, role, organization_id) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-      [full_name, email, hashedPassword, role, organization_id]
+      [fullName, email, hashedPassword, role, organizationId]
     );
+
+    // Commit transaction
+    await pool.query('COMMIT');
 
     res.status(201).json({
       id: newUser.rows[0].id,
       full_name: newUser.rows[0].full_name,
       role: newUser.rows[0].role,
       organization_id: newUser.rows[0].organization_id,
+      message: "Organization and user created successfully"
     });
+    
   } catch (err) {
+    // Rollback transaction on error
+    await pool.query('ROLLBACK');
+    
     console.error("Signup error:", err.message);
-    res.status(500).send("Server error");
+    
+    
+    if (err.code === '23505') {
+      if (err.constraint === 'organizations_name_key') {
+        return res.status(400).json({ message: "Organization name already exists" });
+      }
+      if (err.constraint === 'users_email_key') {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+    }
+    
+    res.status(500).json({ message: "Server error during signup" });
   }
 });
-
-
-
-
-
-
 
 module.exports = router;
