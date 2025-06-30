@@ -9,9 +9,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/tasks", taskRoutes);
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
+app.use("/tasks", taskRoutes);
 
 const PORT = process.env.PORT;
 
