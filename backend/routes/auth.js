@@ -49,6 +49,40 @@ router.post("/login", async (req, res) => {
 });
 
 
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  const normalizedEmail = email.toLowerCase();
+  console.log("FORGOT PASSWORD REQUEST:", normalizedEmail);
+  try {
+    const userRes = await pool.query("SELECT * FROM users WHERE LOWER(email) = $1", [normalizedEmail]);
+    const user = userRes.rows[0];
+
+    if (!user) {
+      console.log("User not found for email:", normalizedEmail);
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    //abhi nhi bana hai ye functionality
+    //to implement - either build ur own using any email service or use nodemailer or migrate auth service to supabase auth
+
+    console.log(`Password reset link sent to ${normalizedEmail}`);
+    console.log("Will implement forgotpassword functionality later");
+
+    res.json({ message: "Password reset link sent to your email" });
+
+  } catch (err) {
+    console.error("Error in forgot-password route:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+
+});
+
+
+
+
+
+
 // signup route
 router.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password, organizationName, role } = req.body;
