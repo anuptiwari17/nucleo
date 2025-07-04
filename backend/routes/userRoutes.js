@@ -23,12 +23,24 @@ router.post("/create-manager", async (req, res) => {
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(password || "manager123", 10); // Default password fallback
+    const lowerCaseEmail = email.toLowerCase();
+
+    const existingUser = await pool.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [lowerCaseEmail]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({ error: "Email already in use by another account" });
+    }
+
+  
+    const hashedPassword = await bcrypt.hash(password || "manager123", 10);
 
     const newManager = await pool.query(
       `INSERT INTO users (full_name, email, password_hash, role, department, organization_id)
        VALUES ($1, $2, $3, 'manager', $4, $5) RETURNING *`,
-      [full_name, email.toLowerCase(), hashedPassword, department, organization_id]
+      [full_name, lowerCaseEmail, hashedPassword, department, organization_id]
     );
 
     res.status(201).json({
@@ -40,6 +52,7 @@ router.post("/create-manager", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 
 

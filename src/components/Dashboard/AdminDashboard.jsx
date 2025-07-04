@@ -7,6 +7,42 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
+
+
+const Modal = React.memo(({ isOpen, onClose, title, children }) => {
+    if (!isOpen) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-md w-full border border-white/10 shadow-2xl overflow-hidden">
+          <div className="p-6 border-b border-white/10">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-white">{title}</h3>
+              <button
+                onClick={onClose}
+                className="text-white/50 hover:text-white transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="p-6">
+            {children}
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+
+
+
+
+
+
+
 const AdminDashboard = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -479,32 +515,32 @@ const fetchTaskStats = async () => {
     );
   };
 
-  const Modal = ({ isOpen, onClose, title, children }) => {
-    if (!isOpen) return null;
+  // const Modal = React.memo(({ isOpen, onClose, title, children }) => {
+  //   if (!isOpen) return null;
     
-    return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-md w-full border border-white/10 shadow-2xl overflow-hidden">
-          <div className="p-6 border-b border-white/10">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-white">{title}</h3>
-              <button
-                onClick={onClose}
-                className="text-white/50 hover:text-white transition-colors"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div className="p-6">
-            {children}
-          </div>
-        </div>
-      </div>
-    );
-  };
+  //   return (
+  //     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  //       <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl max-w-md w-full border border-white/10 shadow-2xl overflow-hidden">
+  //         <div className="p-6 border-b border-white/10">
+  //           <div className="flex justify-between items-center">
+  //             <h3 className="text-xl font-bold text-white">{title}</h3>
+  //             <button
+  //               onClick={onClose}
+  //               className="text-white/50 hover:text-white transition-colors"
+  //             >
+  //               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  //                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+  //               </svg>
+  //             </button>
+  //           </div>
+  //         </div>
+  //         <div className="p-6">
+  //           {children}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   );
+  // });
 
   const LoadingSpinner = () => (
     <div className="flex justify-center items-center p-12">
@@ -1179,9 +1215,10 @@ const fetchTaskStats = async () => {
           <div>
             <label className="block text-sm font-medium text-white/80 mb-1">Full Name</label>
             <input
+              name="name"
               type="text"
               value={newManager.name}
-              onChange={(e) => setNewManager({...newManager, name: e.target.value})}
+              onChange={(e) => setNewManager(prev => ({...prev, name: e.target.value}))}
               className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               required
             />
@@ -1191,7 +1228,7 @@ const fetchTaskStats = async () => {
             <input
               type="email"
               value={newManager.email}
-              onChange={(e) => setNewManager({...newManager, email: e.target.value})}
+              onChange={(e) => setNewManager(prev => ({ ...prev, email: e.target.value }))}
               className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               required
             />
@@ -1201,7 +1238,7 @@ const fetchTaskStats = async () => {
             <input
               type="text"
               value={newManager.department}
-              onChange={(e) => setNewManager({...newManager, department: e.target.value})}
+              onChange={(e) => setNewManager(prev => ({ ...prev, department: e.target.value }))}
               className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               required
             />
@@ -1211,7 +1248,7 @@ const fetchTaskStats = async () => {
             <input
               type="password"
               value={newManager.password}
-              onChange={(e) => setNewManager({...newManager, password: e.target.value})}
+              onChange={(e) => setNewManager(prev => ({ ...prev, password: e.target.value }))}
               className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
               placeholder="Leave blank for default (manager123)"
             />
@@ -1247,7 +1284,7 @@ const fetchTaskStats = async () => {
               <input
                 type="text"
                 value={newEmployee.name}
-                onChange={(e) => setNewEmployee({...newEmployee, name: e.target.value})}
+                onChange={(e) => setNewEmployee(prev => ({ ...prev, name: e.target.value }))}
                 className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               />
@@ -1257,7 +1294,7 @@ const fetchTaskStats = async () => {
               <input
                 type="email"
                 value={newEmployee.email}
-                onChange={(e) => setNewEmployee({...newEmployee, email: e.target.value})}
+                onChange={(e) => setNewEmployee(prev => ({ ...prev, email: e.target.value }))}
                 className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               />
@@ -1267,7 +1304,7 @@ const fetchTaskStats = async () => {
               <input
                 type="text"
                 value={newEmployee.position}
-                onChange={(e) => setNewEmployee({...newEmployee, position: e.target.value})}
+                onChange={(e) => setNewEmployee(prev => ({...prev, position: e.target.value}))}
                 className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               />
@@ -1276,7 +1313,7 @@ const fetchTaskStats = async () => {
               <label className="block text-sm font-medium text-white/80 mb-1">Assign to Manager</label>
               <select
                 value={newEmployee.managerId}
-                onChange={(e) => setNewEmployee({...newEmployee, managerId: e.target.value})}
+                onChange={(e) => setNewEmployee(prev => ({...prev, managerId: e.target.value}))}
                 className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 required
               >
@@ -1293,7 +1330,7 @@ const fetchTaskStats = async () => {
               <input
                 type="password"
                 value={newEmployee.password}
-                onChange={(e) => setNewEmployee({...newEmployee, password: e.target.value})}
+                onChange={(e) => setNewEmployee(prev => ({...prev, password: e.target.value}))}
                 className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10 text-white focus:border-purple-500 focus:outline-none transition-colors"
                 placeholder="Leave blank for default (emp123)"
               />
