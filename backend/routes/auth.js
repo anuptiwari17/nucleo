@@ -7,31 +7,31 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase();
 
-  console.log("🔐 LOGIN ATTEMPT:", normalizedEmail);
+  console.log("LOGIN ATTEMPT:", normalizedEmail);
 
   try {
-    // ✅ Check if DB is connected and env is loaded
-    console.log("🧪 Checking DATABASE_URL:", process.env.DATABASE_URL);
+    //Check if DB is connected and env is loaded
+    console.log("Checking DATABASE_URL:", process.env.DATABASE_URL);
 
     const userRes = await pool.query("SELECT * FROM users WHERE LOWER(email) = $1", [normalizedEmail]);
 
-    console.log("📦 Query Result:", userRes.rows);
+    console.log("Query Result:", userRes.rows);
 
     const user = userRes.rows[0];
     if (!user) {
-      console.log("❌ User not found");
+      console.log("User not found");
       return res.status(401).json({ error: "User not found" });
     }
 
-    console.log("🔍 Comparing password:", password, "with hash:", user.password_hash);
+    console.log("Comparing password:", password, "with hash:", user.password_hash);
 
     const match = await bcrypt.compare(password, user.password_hash);
     if (!match) {
-      console.log("❌ Password mismatch");
+      console.log("Password mismatch");
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    console.log("✅ Password matched");
+    console.log("Password matched");
 
     res.json({
       id: user.id,
@@ -40,10 +40,10 @@ router.post("/login", async (req, res) => {
       organization_id: user.organization_id,
     });
 
-    console.log("🎉 User logged in:", user.email);
+    console.log("User logged in:", user.email);
 
   } catch (err) {
-    console.error("🔥 FULL SERVER ERROR:", err);
+    console.error("FULL SERVER ERROR:", err);
     res.status(500).send("Server error");
   }
 });
