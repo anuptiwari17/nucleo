@@ -28,18 +28,6 @@ Built as a personal project to demonstrate backend, frontend, and database integ
     - Admin → Managers → Employees
     - Managers manage their own employees
     - Employees can view and update their tasks
-- **Organization Onboarding**
-Any organization can register using the admin’s name, email, organization name, and password.
-- **Admin Dashboard**
-Admins can:
-    - Create and manage managers
-    - Add employees under specific managers
-    - Assign tasks to employees
-    - View task and employee statistics
-- **Role-Based Hierarchy**
-    - Admin → Managers → Employees
-    - Managers manage their own employees
-    - Employees can view and update their tasks
 - **Task Management System**
     - Tasks can have different statuses: `New`, `Active`, `Completed`, or `Failed`
     - Failed tasks require a failure reason
@@ -74,6 +62,7 @@ Admins can:
 ## 📸 Screenshots
 
 ![image](https://github.com/user-attachments/assets/b210955d-1639-4fcb-90f5-10e3bb3a6505)
+
 ![image](https://github.com/user-attachments/assets/0c03ba3a-b0c6-4f7f-98d3-ba5bdecabc24)
 
 
