@@ -1157,7 +1157,7 @@ const fetchTaskStats = async () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">Welcome, {user?.name}</h1>
+          <h1 className="text-4xl font-bold text-white mb-2">Welcome, {user?.full_name?.split(' ')[0] || 'Admin'}</h1>
           <p className="text-white/80 text-xl">Manage your organization's workforce and tasks</p>
         </div>
 
