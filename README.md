@@ -1,125 +1,151 @@
-<div align="center">
+# Nucleo - Employee Management System
 
-# 👨‍💻 Anup Tiwari
+*Nucleo* is a full-stack employee and task management web application designed to simplify how organizations manage their teams. It allows organizations to register and onboard admins, create manager roles, assign employees under managers, and track tasks across different stages — from assignment to completion or failure.
 
-### Full-Stack Developer | Building Digital Experiences
+Built as a personal project to demonstrate backend, frontend, and database integration using modern web technologies.
 
-<p>
-  <a href="https://x.com/offsidengineer"><img src="https://img.shields.io/badge/-Twitter-1DA1F2?style=flat&logo=x&logoColor=white"/></a>
-  <a href="https://www.linkedin.com/in/-anuptiwari"><img src="https://img.shields.io/badge/-LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white"/></a>
-  <a href="mailto:anuptiwari050@gmail.com"><img src="https://img.shields.io/badge/-Email-D14836?style=flat&logo=gmail&logoColor=white"/></a>
-</p>
+## 🌐 Live Website
 
-</div>
+👉 [Visit Nucleo](https://nucleoorg.vercel.app/)
 
 ---
 
-## 💫 Who Am I?
+## 🚀 Features
 
-Second-year information technology student with a passion for turning ideas into reality through code. I don't just learn technologies—I build with them. Every project is an opportunity to solve real problems and push my boundaries.
-
-**What drives me:** Creating products that people actually want to use, writing clean code, and constantly leveling up my skills.
-
----
-
-## 🔥 What I'm Up To
-
-- Building full-stack applications that scale
-- Mastering modern web development with Next.js and TypeScript
-- Exploring cloud infrastructure and DevOps practices
-- Contributing to open-source when I can
-- Learning by shipping—because that's where real growth happens
-
----
-
-## ⚡ Tech Stack
-
-<table>
-  <tr>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=nextjs" width="48" height="48" alt="Next.js" />
-      <br>Next.js
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=typescript" width="48" height="48" alt="TypeScript" />
-      <br>TypeScript
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=react" width="48" height="48" alt="React" />
-      <br>React
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=nodejs" width="48" height="48" alt="Node.js" />
-      <br>Node.js
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=express" width="48" height="48" alt="Express" />
-      <br>Express
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=mongodb" width="48" height="48" alt="MongoDB" />
-      <br>MongoDB
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=supabase" width="48" height="48" alt="Supabase" />
-      <br>Supabase
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=tailwind" width="48" height="48" alt="Tailwind CSS" />
-      <br>Tailwind
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=docker" width="48" height="48" alt="Docker" />
-      <br>Docker
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=javascript" width="48" height="48" alt="JavaScript" />
-      <br>JavaScript
-    </td>
-    <td align="center" width="96">
-      <img src="https://skillicons.dev/icons?i=git" width="48" height="48" alt="Git" />
-      <br>Git
-    </td>
-  </tr>
-</table>
+- *Organization Onboarding*
+    
+    Any organization can register using the admin’s name, email, organization name, and password.
+    
+- *Admin Dashboard*
+    
+    Admins can:
+    
+    - Create and manage managers
+    - Add employees under specific managers
+    - Assign tasks to employees
+    - View task and employee statistics
+- *Role-Based Hierarchy*
+    - Admin → Managers → Employees
+    - Managers manage their own employees
+    - Employees can view and update their tasks
+- *Task Management System*
+    - Tasks can have different statuses: New, Active, Completed, or Failed
+    - Failed tasks require a failure reason
+        - Tasks can have different statuses: New, Active, Completed, or Failed
+        - Failed tasks require a failure reason
+- *Statistics Overview*
+    - Real-time analytics on employee count and task breakdown
+    - Track how many tasks are new, active, completed, or failed
+        - Real-time analytics on employee count and task breakdown
+        - Track how many tasks are new, active, completed, or failed
+- *Secure Password Handling*
+    - All passwords are encrypted using bcrypt before storage
+        - All passwords are encrypted using bcrypt before storage
 
 ---
 
-## 🌟 What I Bring to the Table
+## 🛠 Tech Stack
 
-**Problem Solver** — I love breaking down complex challenges into elegant solutions  
-**Fast Learner** — New tech stack? Give me a weekend  
-**Team Player** — Best ideas come from collaboration  
-**Shipping Mindset** — Perfect is the enemy of done—I build, iterate, and improve
+| Layer | Technology |
+| --- | --- |
+| Frontend | React (Vite), TailwindCSS |
+| Backend | Express.js |
+| Database | PostgreSQL (via Supabase) |
+| Hosting | Vercel + Railway |
 
----
 
-## 📚 Beyond Code
-
-When I'm not coding, you'll find me:
-- 🎯 Exploring new frameworks and tools
-- 📖 Reading tech blogs and documentation
-- 🤝 Networking with fellow developers
-- 💡 Brainstorming the next big idea
+> Supabase is used purely as a PostgreSQL backend in this project — authentication is handled manually using Express, bcrypt, and sessions.
+> 
 
 ---
 
-## 💬 Let's Connect
+## 📸 Screenshots
 
-I'm always open to collaborating on interesting projects, discussing tech, or just having a chat about development.
+![image](https://github.com/user-attachments/assets/b210955d-1639-4fcb-90f5-10e3bb3a6505)
 
-📧 **Reach out:** anuptiwari050@gmail.com  
-🐦 **Follow me:** [@offsidetwt](https://x.com/offsidetwt)  
-💼 **Connect:** [LinkedIn](https://www.linkedin.com/in/-anuptiwari)
+![image](https://github.com/user-attachments/assets/0c03ba3a-b0c6-4f7f-98d3-ba5bdecabc24)
+
+
+## 📁 Project Structure (Simplified)
+
+nucleo/
+
+`nucleo/
+│
+├── client/ # React frontend
+│ ├── src/
+│ │ ├── components/ # UI components
+│ │ ├── pages/ # Page components (Home, Dashboard, etc.)
+│ │ └── utils/ # Helper functions, API utils
+│
+├── backed/ # Express backend
+├── backend/ # Express backend
+│ ├── routes/ # Auth, User, Task API
+│ ├── db/ # Supabase (PostgreSQL) connection
+│ └── db/ # Supabase (PostgreSQL) connection
+│
+└── [README.md](http://readme.md/) # You're here!
 
 ---
 
-<div align="center">
-  
-  **"The best time to start was yesterday. The second best time is now."**
-  
-  ![Profile Views](https://komarev.com/ghpvc/?username=anuptiwari17&color=blueviolet&style=flat)
-  
-</div>
+---
+
+## 🧪 Local Setup Instructions
+
+> Make sure you have Node.js (v18 or higher) and PostgreSQL (via Supabase or locally) configured.
+> 
+
+> 
+> 
+1. *Clone the repo*
+
+bash
+git clone <https://github.com/yourusername/nucleo.git>
+cd nucleo
+
+
+
+1. *Setup Environment Variables
+Create a .env file in /backend
+PORT=5000
+SUPABASE_DB_URL=your_supabase_postgresql_url
+2. Install dependencies :
+npm install
+cd /backend
+npm install
+3. Run the App
+npm start
+cd ..
+npm run dev
+
+Bash
+
+git clone <https://github.com/yourusername/nucleo.git> cd nucleo
+
+1. *Setup Environment Variables*
+Create a .env file in /backend
+    
+    PORT=5000  SUPABASE_DB_URL=your_supabase_postgresql_url
+    
+2. *Install dependencies*Bash
+    
+    npm install  cd backend  npm install
+    
+3. *Run the App*Bash
+    
+    npm start  cd ..  npm run dev
+    
+
+## ✨ Future Improvements
+
+Add Supabase Auth or JWT-based role authentication
+
+Implement file attachments with tasks
+
+Real-time communication using WebSockets
+
+Notifications and alerts for task deadlines
+
+- Add Supabase Auth or JWT-based role authentication
+- Implement file attachments with tasks
+- Real-time communica# Nucleo - Employee Management System
