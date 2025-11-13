@@ -8,14 +8,15 @@ require('dotenv').config();
   This executes before any route handler below.
 */
 router.use((req, res, next) => {
-  if (req.method !== 'GET') {
+  if (!['GET', 'HEAD'].includes(req.method)) {
     return res.status(405).json({
       success: false,
-      message: 'Method Not Allowed. Only GET is supported.'
+      message: 'Method Not Allowed. Only GET or HEAD are supported.'
     });
   }
   next();
 });
+
 
 // GET /api/keep-alive?token=yourtoken
 router.get('/', async (req, res) => {
