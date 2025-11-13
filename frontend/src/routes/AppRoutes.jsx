@@ -8,9 +8,10 @@ import ManagerDashboard from '../components/Dashboard/ManagerDashboard';
 import EmployeeDashboard from '../components/Dashboard/EmployeeDashboard';
 import PrivateRoute from './PrivateRoute';
 import { useAuth } from '../context/AuthContext';
-import ForgotPassword from '../components/Auth/ForgotPassword'; 
+import ForgotPassword from '../components/Auth/ForgotPassword';
 import Legal from '../components/ui/Legal';
 import Pricing from '../components/ui/Pricing';
+import ShowcaseDemo from '../components/ui/Demo';
 
 const DashboardRedirector = () => {
   const { user, isAuthLoading } = useAuth();
@@ -47,6 +48,7 @@ const AppRoutes = () => (
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/legal" element={<Legal />} />
     <Route path="/pricing" element={<Pricing />} />
+    <Route path="/demo" element={<ShowcaseDemo/>}/>
 
 
     {/* Role-based redirector */}

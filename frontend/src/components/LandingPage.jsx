@@ -393,7 +393,8 @@ const LandingPage = () => {
               >
                 Start Free Trial
               </button>
-              <button className="px-8 py-4 text-base font-semibold text-slate-900 bg-white hover:bg-slate-50 rounded-xl transition-all duration-200 border-2 border-slate-200 hover:border-slate-300">
+              <button className="px-8 py-4 text-base font-semibold text-slate-900 bg-white hover:bg-slate-50 rounded-xl transition-all duration-200 border-2 border-slate-200 hover:border-slate-300"
+              onClick={()=> navigate("/demo")}>
                 Schedule Demo
               </button>
             </div>
