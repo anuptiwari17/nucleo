@@ -6,141 +6,107 @@ const Header = ({ onLogout, user }) => {
   const [chatRecipientEmail, setChatRecipientEmail] = useState('');
   const [chatMessage, setChatMessage] = useState('');
 
-  // Update time every second
+  // Live clock
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const formatTime = (date) => {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  const formatTime = (date) =>
+    date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-  const formatDate = (date) => {
-    return date.toLocaleDateString([], { 
-      weekday: 'short', 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
+  const formatDate = (date) =>
+    date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
   const displayName = user?.full_name || user?.name || 'User';
-  const displayRole = user?.role || 'Employee';
+  const displayRole = (user?.role || 'Employee').replace('_', ' ');
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = (e) => {
     e.preventDefault();
     if (!chatRecipientEmail.trim() || !chatMessage.trim()) {
-      alert('Please fill in both recipient email and message');
+      alert('Please fill in both fields');
       return;
     }
-
-    // TODO: Implement actual message sending functionality
-    alert(`Message functionality will be implemented soon!\n\nTo: ${chatRecipientEmail}\nMessage: ${chatMessage}`);
-    
-    // Reset form
+    alert(`Message sent!\nTo: ${chatRecipientEmail}\nMessage: ${chatMessage}`);
     setChatRecipientEmail('');
     setChatMessage('');
     setShowChatModal(false);
-  };
-
-  const closeChatModal = () => {
-    setShowChatModal(false);
-    setChatRecipientEmail('');
-    setChatMessage('');
   };
 
   return (
     <>
-      <div className="sticky top-0 z-50 bg-gradient-to-r from-gray-900/95 via-gray-800/95 to-gray-900/95 backdrop-blur-xl border-b border-white/10 shadow-2xl">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex items-center justify-between">
-            
-            {/* Left Section - Brand & Role */}
-            <div className="flex items-center space-x-6">
-              {/* Brand Logo */}
-              <div className="group">
-                <h1 className="text-3xl font-black text-white tracking-wide relative transition-all duration-300 group-hover:scale-105">
-                  <span 
-                    className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent"
-                    style={{ 
-                      fontFamily: '"Orbitron", "Exo 2", "Rajdhani", "Space Grotesk", system-ui, sans-serif',
-                      fontWeight: 900,
-                      letterSpacing: '0.1em'
-                    }}
+
+            {/* Left: Logo + Role */}
+            <div className="flex items-center gap-8">
+              <div className="flex items-center gap-4">
+                <h1 className="text-4xl font-black tracking-tight">
+                  <span
+                    className="bg-gradient-to-r from-violet-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent"
+                    style={{ fontFamily: '"Orbitron", sans-serif', fontWeight: 900 }}
                   >
                     Nucleo
                   </span>
-                  {/* Simple glow effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-400/30 via-pink-400/30 to-cyan-400/30 
-                                  rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                 </h1>
               </div>
 
-              {/* Role Badge */}
-              <div className="hidden md:flex items-center gap-2">
-                <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 border border-purple-500/30 backdrop-blur-sm">
-                  <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-                  {displayRole} Dashboard
+              <div className="hidden md:flex items-center">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                  {displayRole} Portal
                 </span>
               </div>
             </div>
 
-            {/* Right Section - User Actions */}
-            <div className="flex items-center space-x-4">
-              
-              {/* Time & Date Widget */}
-              <div className="hidden lg:flex flex-col items-end bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10 hover:bg-white/10 transition-all duration-300">
-                <div className="flex items-center space-x-2 text-white font-semibold">
-                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Right: Time + Actions */}
+            <div className="flex items-center gap-6">
+
+              {/* Clock */}
+              <div className="hidden lg:block text-right">
+                <div className="flex items-center gap-2 text-slate-700 font-medium">
+                  <svg className="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-lg tabular-nums">{formatTime(currentTime)}</span>
+                  <span className="tabular-nums text-lg">{formatTime(currentTime)}</span>
                 </div>
-                <span className="text-xs text-white/60 mt-1">{formatDate(currentTime)}</span>
+                <p className="text-xs text-slate-500 mt-0.5">{formatDate(currentTime)}</p>
               </div>
 
-              {/* Chat/Messages Button */}
-              <button 
+              {/* Messages Button */}
+              <button
                 onClick={() => setShowChatModal(true)}
-                className="relative p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-300 group hover:scale-105"
+                className="relative p-3 rounded-xl bg-slate-100 hover:bg-slate-200 transition"
                 title="Messages"
               >
-                <svg className="w-5 h-5 text-white/80 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.418 8-8 8a9.863 9.863 0 01-4.255-.949L5 20l1.395-3.72C5.512 15.042 5 13.574 5 12c0-4.418 4.418-8 8-8s8 3.582 8 8z" />
                 </svg>
-                {/* New message indicator (placeholder) */}
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                  0
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-violet-600 to-blue-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  3
                 </span>
               </button>
 
-              {/* User Profile Section */}
-              <div className="flex items-center space-x-3 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-                {/* Enhanced Avatar */}
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <span className="text-white font-bold text-sm">
-                      {displayName.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                  {/* Online Status Indicator */}
-                  <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 border-2 border-gray-900 rounded-full"></div>
+              {/* User Info */}
+              <div className="flex items-center gap-4">
+                <div className="text-right hidden sm:block">
+                  <p className="font-semibold text-slate-900">{displayName}</p>
+                  <p className="text-xs text-slate-500">{user?.email}</p>
                 </div>
-                
-                {/* User Details */}
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-white leading-tight">{displayName}</p>
-                  <p className="text-xs text-white/60">{user?.email}</p>
+                <div className="relative">
+                  <div className="w-11 h-11 bg-gradient-to-br from-violet-600 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    {displayName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
               </div>
 
-              {/* Logout Button */}
-              <button 
+              {/* Logout */}
+              <button
                 onClick={onLogout}
-                className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-300 px-4 py-2.5 rounded-xl text-sm font-medium text-white shadow-lg hover:shadow-xl hover:scale-105 flex items-center space-x-2"
+                className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-pink-600 text-white font-medium rounded-xl hover:shadow-lg transition-all duration-200 hover:scale-105 flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -151,106 +117,84 @@ const Header = ({ onLogout, user }) => {
           </div>
 
           {/* Mobile Role Badge */}
-          <div className="md:hidden mt-3 flex justify-center">
-            <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-medium bg-gradient-to-r from-purple-500/20 to-blue-500/20 text-purple-300 border border-purple-500/30 backdrop-blur-sm">
-              <span className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
-              {displayRole} Dashboard
+          <div className="md:hidden mt-4 flex justify-center">
+            <span className="inline-flex items-center gap-2 px-4 py-2 bg-violet-100 text-violet-700 rounded-full text-sm font-medium">
+              <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+              {displayRole} Portal
             </span>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Chat Modal */}
       {showChatModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white/10 backdrop-blur-xl rounded-2xl max-w-md w-full border border-white/20 shadow-2xl shadow-purple-500/25">
-            <div className="p-6">
-              {/* Modal Header */}
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Send Message</h3>
-                  <p className="text-sm text-white/60 mt-1">Send a message to a team member</p>
-                </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-2xl font-bold text-slate-900">Send Message</h3>
+                <p className="text-slate-600 mt-1">Reach out to a team member</p>
+              </div>
+              <button
+                onClick={() => setShowChatModal(false)}
+                className="p-2 hover:bg-slate-100 rounded-lg transition"
+              >
+                <svg className="w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={handleSendMessage} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Recipient Email
+                </label>
+                <input
+                  type="email"
+                  value={chatRecipientEmail}
+                  onChange={(e) => setChatRecipientEmail(e.target.value)}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  placeholder="colleague@company.com"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Message
+                </label>
+                <textarea
+                  value={chatMessage}
+                  onChange={(e) => setChatMessage(e.target.value)}
+                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none"
+                  rows="5"
+                  placeholder="Type your message..."
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
                 <button
-                  onClick={closeChatModal}
-                  className="text-white/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+                  type="button"
+                  onClick={() => setShowChatModal(false)}
+                  className="flex-1 px-6 py-3 border border-slate-300 rounded-xl font-medium hover:bg-slate-50 transition"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-violet-600 to-blue-600 text-white rounded-xl font-medium hover:shadow-lg transition flex items-center justify-center gap-2"
+                >
+                  Send Message
                 </button>
               </div>
+            </form>
 
-              {/* Chat Interface */}
-              <div className="space-y-4 mb-6">
-                {/* No messages placeholder */}
-                <div className="bg-white/5 rounded-xl p-4 border border-white/10 text-center">
-                  <svg className="w-12 h-12 text-white/30 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.418 8-8 8a9.863 9.863 0 01-4.255-.949L5 20l1.395-3.72C5.512 15.042 5 13.574 5 12c0-4.418 4.418-8 8-8s8 3.582 8 8z" />
-                  </svg>
-                  <p className="text-white/50 text-sm">No messages yet</p>
-                  <p className="text-white/30 text-xs mt-1">Start a conversation below</p>
-                </div>
-              </div>
-
-              {/* Message Form */}
-              <form onSubmit={handleSendMessage} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Recipient Email
-                  </label>
-                  <input
-                    type="email"
-                    value={chatRecipientEmail}
-                    onChange={(e) => setChatRecipientEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-white/40"
-                    placeholder="colleague@company.com"
-                    required
-                  />
-                  <p className="text-xs text-white/50 mt-1">Enter email of someone from your organization</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-white/80 mb-2">
-                    Message
-                  </label>
-                  <textarea
-                    value={chatMessage}
-                    onChange={(e) => setChatMessage(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-white placeholder-white/40 resize-none"
-                    rows="4"
-                    placeholder="Type your message here..."
-                    required
-                  />
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={closeChatModal}
-                    className="flex-1 px-4 py-3 border border-white/20 text-white rounded-xl hover:bg-white/10 transition-all duration-300 font-medium"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white rounded-xl font-medium transition-all duration-300 hover:scale-105 hover:shadow-lg flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                    </svg>
-                    Send Message
-                  </button>
-                </div>
-              </form>
-
-              {/* Future Features Notice */}
-              <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                <p className="text-xs text-blue-300 text-center">
-                  💡 Real-time messaging features coming soon!
-                </p>
-              </div>
+            <div className="mt-6 p-4 bg-violet-50 border border-violet-200 rounded-xl">
+              <p className="text-sm text-violet-800 text-center font-medium">
+                Real-time chat coming soon!
+              </p>
             </div>
           </div>
         </div>

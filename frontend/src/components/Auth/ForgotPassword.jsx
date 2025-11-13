@@ -1,4 +1,3 @@
-// ForgotPassword.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -14,7 +13,7 @@ function ForgotPassword() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!email) {
       setError('Please enter your email');
       return;
@@ -38,18 +37,17 @@ function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 relative overflow-hidden flex items-center justify-center p-4">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-20 w-52 h-52 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full opacity-30 blur-2xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-72 h-72 bg-gradient-to-r from-pink-600 to-orange-600 rounded-full opacity-25 blur-2xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/3 w-48 h-48 bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-full opacity-20 blur-2xl animate-pulse delay-2000"></div>
+    <div className="min-h-screen bg-white relative overflow-hidden flex items-center justify-center p-4">
+      {/* Subtle background gradients */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-20 left-20 w-96 h-96 bg-violet-200/40 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-200/40 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Back button */}
+      {/* Back Button */}
       <button
         onClick={() => navigate('/login')}
-        className="absolute top-4 left-4 flex items-center space-x-1 text-white/80 hover:text-white transition-colors z-10 backdrop-blur-sm bg-white/10 px-3 py-1 rounded-full border border-white/20 text-sm"
+        className="absolute top-6 left-6 flex items-center space-x-2 text-slate-700 hover:text-slate-900 transition-colors z-10 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl border border-slate-200 text-sm font-medium"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -57,77 +55,73 @@ function ForgotPassword() {
         <span>Back</span>
       </button>
 
-      {/* Forgot password card */}
+      {/* Forgot Password Card */}
       <div className="relative z-10 w-full max-w-md">
-        <div className="bg-white/5 backdrop-blur-xl rounded-2xl shadow-xl border border-white/10 p-6 transform hover:scale-[1.01] transition-all duration-300">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h1 className="text-3xl font-black text-white tracking-wide relative pb-2">
+        <div className="bg-white rounded-2xl shadow-xl border-2 border-slate-200 p-8">
+          {/* Logo & Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-black relative inline-block">
               <span 
-                className="bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 bg-clip-text text-transparent"
+                className="bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
                 style={{ 
                   fontFamily: '"Orbitron", "Exo 2", "Rajdhani", "Space Grotesk", system-ui, sans-serif',
                   fontWeight: 900,
-                  letterSpacing: '0.1em'
+                  letterSpacing: '0.05em'
                 }}
               >
                 Nucleo
               </span>
             </h1>
-            <h2 className="text-3xl font-black text-white mb-1">
-              Reset <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Password</span>
-            </h2>
-            <p className="text-white/70 text-sm">Enter your email to receive a reset link</p>
+            <h2 className="text-2xl font-bold text-slate-900 mt-3">Reset Password</h2>
+            <p className="text-slate-600 mt-1">Enter your email to receive a reset link</p>
           </div>
 
+          {/* Success Message */}
+          {message && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+              <p className="text-sm text-green-700">{message}</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
           {/* Form */}
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            {error && (
-              <div className="p-3 bg-gradient-to-r from-red-500/20 to-pink-500/20 backdrop-blur-sm border border-red-400/30 rounded-lg">
-                <p className="text-red-300 text-xs">{error}</p>
-              </div>
-            )}
-
-            {message && (
-              <div className="p-3 bg-gradient-to-r from-green-500/20 to-teal-500/20 backdrop-blur-sm border border-green-400/30 rounded-lg">
-                <p className="text-green-300 text-xs">{message}</p>
-              </div>
-            )}
-
-            {/* Email field */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Email Field */}
             <div>
-              <label className="block text-xs font-medium text-white/80 mb-1">Email Address</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email Address</label>
               <div className="relative">
                 <input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg focus:border-purple-400/50 focus:ring-1 focus:ring-purple-500/30 focus:outline-none transition-all duration-300 text-white placeholder-white/40 text-sm"
+                  className="w-full pl-11 pr-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all text-slate-900 placeholder-slate-400 text-sm"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="john@company.com"
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                 </div>
               </div>
             </div>
 
-            {/* Submit button */}
+            {/* Submit Button */}
             <button
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:opacity-70 text-white py-3 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg transform hover:scale-[1.02] flex items-center justify-center space-x-1 text-sm"
               type="submit"
+              disabled={loading}
+              className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-600 text-white py-3.5 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center space-x-2 text-sm"
             >
               {loading ? (
                 <>
                   <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   <span>Sending link...</span>
                 </>
@@ -142,13 +136,13 @@ function ForgotPassword() {
             </button>
           </form>
 
-          {/* Back to login link */}
+          {/* Back to Login */}
           <div className="mt-6 text-center">
-            <p className="text-white/70 text-xs">
+            <p className="text-sm text-slate-600">
               Remember your password?{' '}
-              <button 
-                onClick={() => navigate('/login')} 
-                className="text-white font-medium hover:text-purple-300 transition-colors hover:underline"
+              <button
+                onClick={() => navigate('/login')}
+                className="font-medium text-violet-600 hover:text-violet-700 hover:underline"
               >
                 Sign in here
               </button>

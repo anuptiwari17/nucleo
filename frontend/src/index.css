@@ -29,10 +29,7 @@
   --shadow-color: rgba(0, 0, 0, 0.5);
 }
 
-/* Base styles */
-* {
-  @apply border-border;
-}
+
 
 html {
   @apply scroll-smooth;
