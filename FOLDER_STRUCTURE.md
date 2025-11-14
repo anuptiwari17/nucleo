@@ -80,6 +80,18 @@ Contains presentational and page components used by the app.
   - Public landing/home page for the app.
 - `frontend/src/components/ui/Header.jsx`
   - App header/navigation component used across pages. Edit to change menus, logo, or links.
+- `frontend/src/components/ui/Pricing.jsx`
+  - Pricing page displaying three plan tiers (Free, Pro, Enterprise).
+  - Where to edit: change pricing details, features per tier, or CTA buttons.
+- `frontend/src/components/ui/Legal.jsx`
+  - Terms of Service and Privacy Policy on a single page with tabs.
+  - Where to edit: update legal terms, privacy policy, and contact info.
+- `frontend/src/components/ui/Demo.jsx`
+  - Demo scheduling page showing what users will see in a 15-minute walkthrough.
+  - Includes contact information and Calendly booking link.
+  - Where to edit: customize demo content, update contact details.
+- `frontend/src/components/ui/Footer.jsx`
+  - Footer component with links and social media references.
 
 #### `frontend/src/components/Auth/`
 - `Login.jsx`
@@ -119,6 +131,10 @@ Contains presentational and page components used by the app.
 - `localStorage.jsx`
   - Utility wrappers for storing tokens or user info in `localStorage` and retrieving them.
   - Where to edit: switch to sessionStorage, secure storage, or encryption.
+- `ScrollToTop.jsx`
+  - Utility component that scrolls the page to top when route changes.
+  - Ensures smooth UX when navigating between pages (Home → Pricing → Legal → Demo).
+  - Where to edit: adjust scroll behavior (smooth vs instant) or add delay.
 
 ---
 

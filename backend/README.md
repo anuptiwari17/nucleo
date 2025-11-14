@@ -27,11 +27,17 @@ If you use Supabase as Postgres, paste the full connection string. `db.js` enabl
 .env example
 See `./.env.example` in this folder for a template.
 
+Environment Variables
+- `PORT` — Express server port (e.g., `5000`).
+- `DATABASE_URL` — Postgres connection string (local or Supabase).
+- `KEEP_ALIVE_TOKEN` — Secure token for keep-alive endpoint (prevents Supabase timeout on free tier). Example: `your_secure_keep_alive_token_here`.
+
 API overview
 Base paths mounted in `index.js`:
 - `/auth` → routes in `routes/auth.js`
 - `/users` → routes in `routes/userRoutes.js`
 - `/tasks` → routes in `routes/tasksRoutes.js`
+- `/api/keep-alive` → routes in `routes/keepAlive.js`
 
 Below are the primary endpoints, request shapes and short notes. This is a lightweight reference — for production consider adding OpenAPI/Swagger.
 
@@ -112,6 +118,13 @@ Task management (`routes/tasksRoutes.js`)
 
 - GET /tasks/organization/:organizationId
   - Returns all tasks for an organization along with assigned_by / assigned_to names.
+
+Server health & keep-alive (`routes/keepAlive.js`)
+
+- GET /api/keep-alive?token=yourtoken
+  - Validates `KEEP_ALIVE_TOKEN` from environment variables.
+  - Returns: { success: true, server_time, db_time } on success.
+  - Notes: Run this periodically (e.g., every 14 minutes) to prevent Supabase idle connection timeout. Only GET/HEAD requests allowed for security.
 
 Notes & next steps
 

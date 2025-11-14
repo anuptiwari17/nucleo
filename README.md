@@ -31,8 +31,12 @@ Built as a personal project to demonstrate backend, frontend, and database integ
 - *Task Management System*
     - Tasks can have different statuses: New, Active, Completed, or Failed
     - Failed tasks require a failure reason
-        - Tasks can have different statuses: New, Active, Completed, or Failed
-        - Failed tasks require a failure reason
+- *Public Pages*
+    - Pricing page with three tiers (Free, Pro, Enterprise)
+    - Legal page with Terms of Service and Privacy Policy
+    - Demo scheduling page for feature walkthrough
+- *Automatic Page Scroll*
+    - ScrollToTop component ensures pages load at the top when navigating between routes
 - *Statistics Overview*
     - Real-time analytics on employee count and task breakdown
     - Track how many tasks are new, active, completed, or failed
@@ -98,42 +102,38 @@ nucleo/
 > 
 > 
 1. *Clone the repo*
-
-bash
-git clone <https://github.com/yourusername/nucleo.git>
+```bash
+git clone https://github.com/yourusername/nucleo.git
 cd nucleo
+```
 
-
-
-1. *Setup Environment Variables
-Create a .env file in /backend
+2. *Setup Environment Variables*
+Create a `.env` file in `/backend` with the following:
+```dotenv
 PORT=5000
-SUPABASE_DB_URL=your_supabase_postgresql_url
-2. Install dependencies :
+DATABASE_URL=your_postgresql_connection_string
+KEEP_ALIVE_TOKEN=your_secure_keep_alive_token_here
+```
+
+3. *Install dependencies*
+```bash
+# Install backend dependencies
+cd backend
 npm install
-cd /backend
+
+# Install frontend dependencies
+cd ../frontend
 npm install
-3. Run the App
+```
+
+4. *Run the App*
+```bash
+# Terminal 1: Start backend (from backend folder)
 npm start
-cd ..
+
+# Terminal 2: Start frontend (from frontend folder)  
 npm run dev
-
-Bash
-
-git clone <https://github.com/yourusername/nucleo.git> cd nucleo
-
-1. *Setup Environment Variables*
-Create a .env file in /backend
-    
-    PORT=5000  SUPABASE_DB_URL=your_supabase_postgresql_url
-    
-2. *Install dependencies*Bash
-    
-    npm install  cd backend  npm install
-    
-3. *Run the App*Bash
-    
-    npm start  cd ..  npm run dev
+```
     
 
 ## ✨ Future Improvements
