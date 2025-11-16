@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import Footer from './Footer';
+import Footer from '../layout/Footer';
 
 const Legal = () => {
   const location = useLocation();

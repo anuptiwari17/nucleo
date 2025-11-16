@@ -9,9 +9,10 @@ import EmployeeDashboard from '../components/Dashboard/EmployeeDashboard';
 import PrivateRoute from './PrivateRoute';
 import { useAuth } from '../context/AuthContext';
 import ForgotPassword from '../components/Auth/ForgotPassword';
-import Legal from '../components/ui/Legal';
-import Pricing from '../components/ui/Pricing';
-import ShowcaseDemo from '../components/ui/Demo';
+import Legal from '../components/pages/Legal';
+import Pricing from '../components/pages/Pricing';
+import ShowcaseDemo from '../components/pages/Demo';
+
 
 const DashboardRedirector = () => {
   const { user, isAuthLoading } = useAuth();

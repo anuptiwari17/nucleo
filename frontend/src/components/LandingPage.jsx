@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import Footer from './ui/Footer';
+import Footer from './layout/Footer';
 
 const LandingPage = () => {
   const [setScrollY] = useState(0);
@@ -31,9 +31,9 @@ const LandingPage = () => {
             <div className="flex items-center space-x-3">
               <div className="group cursor-pointer">
                 <h1 className="text-2xl font-black relative transition-all duration-300 group-hover:scale-105">
-                  <span 
+                  <span
                     className="bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent"
-                    style={{ 
+                    style={{
                       fontFamily: '"Orbitron", "Exo 2", "Rajdhani", "Space Grotesk", system-ui, sans-serif',
                       fontWeight: 900,
                       letterSpacing: '0.05em'
@@ -46,32 +46,28 @@ const LandingPage = () => {
                 </h1>
               </div>
             </div>
-            
+
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">Features</a>
               <a href="#showcase" className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">Platform</a>
               <a href="#about" className="text-sm font-medium text-slate-700 hover:text-slate-900 transition-colors">About</a>
 
-              <Link 
+              <Link
                 to="/pricing"
                 className="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
               >
                 Pricing
               </Link>
-
             </div>
 
-            
-            
-            
             <div className="flex items-center space-x-3">
-              <button 
+              <button
                 onClick={() => navigate('/login')}
                 className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
               >
                 Sign in
               </button>
-              <button 
+              <button
                 onClick={() => navigate('/signup')}
                 className="px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
               >
@@ -82,168 +78,183 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-24 pb-32">
-        <div className="text-center max-w-4xl mx-auto">
-          <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-slate-100 border border-slate-200">
-            <span className="w-2 h-2 bg-violet-600 rounded-full mr-2 animate-pulse"></span>
-            <span className="text-sm font-medium text-slate-700">Streamlined Employee Management</span>
-          </div>
-          
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 tracking-tight leading-[1.1]">
-            Elevate Your Team
-            <br />
-            <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Performance
-            </span>
-          </h2>
-          
-          <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-normal">
-            Enterprise-grade platform for managing teams, assigning tasks, and tracking progress with elegant simplicity.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
-            <button 
-              onClick={() => navigate('/signup')}
-              className="px-8 py-4 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
-            >
-              Start Free Trial
-            </button>
-            <button 
-              onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 text-base font-semibold text-slate-900 bg-white hover:bg-slate-50 rounded-xl transition-all duration-200 border-2 border-slate-200 hover:border-slate-300"
-            >
-              Explore Platform
-            </button>
-          </div>
+      {/* Hero Section – full-width grid background */}
+      <section className="relative pt-24 pb-32">
+        {/* Full-width grid layer */}
+        <div
+          className="absolute inset-x-0 top-0 h-full"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, #e5e7eb 1px, transparent 1px),
+              linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+          }}
+        />
 
-          {/* Dashboard Preview */}
-          <div className="relative max-w-6xl mx-auto">
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-200/40 to-blue-200/40 blur-3xl"></div>
-            <div className="relative bg-white rounded-2xl p-2 border-2 border-slate-200 shadow-2xl">
-              <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
-                {/* Browser Chrome */}
-                <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="flex-1 max-w-md mx-4">
-                    <div className="bg-white rounded-lg px-3 py-1.5 text-xs text-slate-500 font-medium border border-slate-200">
-                      nucleo.app/dashboard
-                    </div>
-                  </div>
-                  <div className="w-20"></div>
-                </div>
+        {/* Content container (keeps padding & max-width) */}
+        <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center px-4 py-2 mb-8 rounded-full bg-slate-100 border border-slate-200">
+              <span className="w-2 h-2 bg-violet-600 rounded-full mr-2 animate-pulse"></span>
+              <span className="text-sm font-medium text-slate-700">Streamlined Employee Management</span>
+            </div>
 
-                {/* Dashboard Content */}
-                <div className="p-8 space-y-6 bg-white">
-                  {/* Header */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="text-2xl font-bold text-slate-900 mb-1">Welcome back, Jose</h3>
-                      <p className="text-base text-slate-600">Here's your team overview</p>
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 tracking-tight leading-[1.1]">
+              Elevate Your Team
+              <br />
+              <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Performance
+              </span>
+            </h2>
+
+            <p className="text-xl md:text-2xl text-slate-600 mb-12 max-w-2xl mx-auto leading-relaxed font-normal">
+              Enterprise-grade platform for managing teams, assigning tasks, and tracking progress with elegant simplicity.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+              <button
+                onClick={() => navigate('/signup')}
+                className="px-8 py-4 text-base font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-all duration-200 shadow-xl hover:shadow-2xl hover:-translate-y-0.5"
+              >
+                Start Free Trial
+              </button>
+              <button
+                onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 text-base font-semibold text-slate-900 bg-white hover:bg-slate-50 rounded-xl transition-all duration-200 border-2 border-slate-200 hover:border-slate-300"
+              >
+                Explore Platform
+              </button>
+            </div>
+
+            {/* Dashboard Preview */}
+            <div className="relative max-w-6xl mx-auto">
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-200/40 to-blue-200/40 blur-3xl"></div>
+              <div className="relative bg-white rounded-2xl p-2 border-2 border-slate-200 shadow-2xl">
+                <div className="bg-white rounded-xl overflow-hidden border border-slate-200">
+                  {/* Browser Chrome */}
+                  <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <div className="text-right hidden sm:block">
-                        <p className="text-sm font-semibold text-slate-900">Jose Mourinho</p>
-                        <p className="text-xs text-slate-600">Manager</p>
-                      </div>
-                      <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
-                        <span className="text-white font-bold text-sm">JM</span>
+                    <div className="flex-1 max-w-md mx-4">
+                      <div className="bg-white rounded-lg px-3 py-1.5 text-xs text-slate-500 font-medium border border-slate-200">
+                        nucleo.app/dashboard
                       </div>
                     </div>
+                    <div className="w-20"></div>
                   </div>
 
-                  {/* Stats Grid */}
-                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-                    {[
-                      { label: "Team Members", value: "24", change: "+3 this week" },
-                      { label: "Active Tasks", value: "34", change: "5 due today" },
-                      { label: "Completed", value: "156", change: "94% rate" },
-                      { label: "In Progress", value: "12", change: "On track" },
-                      { label: "Overdue", value: "3", change: "Needs attention" }
-                    ].map((stat, i) => (
-                      <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:border-violet-300 hover:shadow-md transition-all duration-200">
-                        <div className="flex items-start justify-between mb-2">
-                          <span className="text-2xl font-bold text-slate-900">{stat.value}</span>
+                  {/* Dashboard Content */}
+                  <div className="p-8 space-y-6 bg-white">
+                    {/* Header */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-2xl font-bold text-slate-900 mb-1">Welcome back, Jose</h3>
+                        <p className="text-base text-slate-600">Here's your team overview</p>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="text-right hidden sm:block">
+                          <p className="text-sm font-semibold text-slate-900">Jose Mourinho</p>
+                          <p className="text-xs text-slate-600">Manager</p>
                         </div>
-                        <p className="text-xs font-medium text-slate-700 mb-1">{stat.label}</p>
-                        <p className="text-xs text-slate-500">{stat.change}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Tabs */}
-                  <div className="flex space-x-2 border-b border-slate-200">
-                    {['Overview', 'Team', 'Tasks', 'Analytics'].map((tab, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setActiveTab(i)}
-                        className={`px-4 py-2.5 text-sm font-semibold transition-all duration-200 border-b-2 ${
-                          activeTab === i
-                            ? 'text-slate-900 border-slate-900'
-                            : 'text-slate-500 border-transparent hover:text-slate-900'
-                        }`}
-                      >
-                        {tab}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Content Grid */}
-                  <div className="grid lg:grid-cols-2 gap-4">
-                    {/* Recent Activity */}
-                    <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                      <h4 className="text-sm font-bold text-slate-900 mb-4">Recent Activity</h4>
-                      <div className="space-y-3">
-                        {[
-                          { user: "Alice Johnson", action: "completed", task: "Q4 Report", time: "2m ago" },
-                          { user: "John Smith", action: "started", task: "Database Migration", time: "15m ago" },
-                          { user: "Bob Williams", action: "commented on", task: "UI Redesign", time: "1h ago" },
-                          { user: "Sarah Davis", action: "submitted", task: "Marketing Plan", time: "2h ago" }
-                        ].map((activity, i) => (
-                          <div key={i} className="flex items-center space-x-3 py-2">
-                            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
-                              <span className="text-xs font-bold text-slate-700">{activity.user[0]}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-slate-900 truncate">
-                                <span className="font-semibold">{activity.user}</span>
-                                <span className="text-slate-600"> {activity.action} </span>
-                                <span className="font-semibold">{activity.task}</span>
-                              </p>
-                              <p className="text-xs text-slate-500">{activity.time}</p>
-                            </div>
-                          </div>
-                        ))}
+                        <div className="w-10 h-10 bg-gradient-to-br from-violet-500 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
+                          <span className="text-white font-bold text-sm">JM</span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Task Distribution */}
-                    <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
-                      <h4 className="text-sm font-bold text-slate-900 mb-4">Task Distribution</h4>
-                      <div className="space-y-4">
-                        {[
-                          { status: "Completed", count: 156, total: 211, color: "bg-green-500" },
-                          { status: "In Progress", count: 34, total: 211, color: "bg-blue-500" },
-                          { status: "Pending", count: 12, total: 211, color: "bg-yellow-500" },
-                          { status: "Failed", count: 9, total: 211, color: "bg-red-500" }
-                        ].map((item, i) => (
-                          <div key={i}>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-medium text-slate-700">{item.status}</span>
-                              <span className="text-sm font-bold text-slate-900">{item.count}</span>
-                            </div>
-                            <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                              <div
-                                className={`h-full ${item.color} transition-all duration-500`}
-                                style={{ width: `${(item.count / item.total) * 100}%` }}
-                              ></div>
-                            </div>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+                      {[
+                        { label: "Team Members", value: "24", change: "+3 this week" },
+                        { label: "Active Tasks", value: "34", change: "5 due today" },
+                        { label: "Completed", value: "156", change: "94% rate" },
+                        { label: "In Progress", value: "12", change: "On track" },
+                        { label: "Overdue", value: "3", change: "Needs attention" }
+                      ].map((stat, i) => (
+                        <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-200 hover:border-violet-300 hover:shadow-md transition-all duration-200">
+                          <div className="flex items-start justify-between mb-2">
+                            <span className="text-2xl font-bold text-slate-900">{stat.value}</span>
                           </div>
-                        ))}
+                          <p className="text-xs font-medium text-slate-700 mb-1">{stat.label}</p>
+                          <p className="text-xs text-slate-500">{stat.change}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tabs */}
+                    <div className="flex space-x-2 border-b border-slate-200">
+                      {['Overview', 'Team', 'Tasks', 'Analytics'].map((tab, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setActiveTab(i)}
+                          className={`px-4 py-2.5 text-sm font-semibold transition-all duration-200 border-b-2 ${
+                            activeTab === i
+                              ? 'text-slate-900 border-slate-900'
+                              : 'text-slate-500 border-transparent hover:text-slate-900'
+                          }`}
+                        >
+                          {tab}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Content Grid */}
+                    <div className="grid lg:grid-cols-2 gap-4">
+                      {/* Recent Activity */}
+                      <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                        <h4 className="text-sm font-bold text-slate-900 mb-4">Recent Activity</h4>
+                        <div className="space-y-3">
+                          {[
+                            { user: "Alice Johnson", action: "completed", task: "Q4 Report", time: "2m ago" },
+                            { user: "John Smith", action: "started", task: "Database Migration", time: "15m ago" },
+                            { user: "Bob Williams", action: "commented on", task: "UI Redesign", time: "1h ago" },
+                            { user: "Sarah Davis", action: "submitted", task: "Marketing Plan", time: "2h ago" }
+                          ].map((activity, i) => (
+                            <div key={i} className="flex items-center space-x-3 py-2">
+                              <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center flex-shrink-0">
+                                <span className="text-xs font-bold text-slate-700">{activity.user[0]}</span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-slate-900 truncate">
+                                  <span className="font-semibold">{activity.user}</span>
+                                  <span className="text-slate-600"> {activity.action} </span>
+                                  <span className="font-semibold">{activity.task}</span>
+                                </p>
+                                <p className="text-xs text-slate-500">{activity.time}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Task Distribution */}
+                      <div className="bg-slate-50 rounded-xl p-5 border border-slate-200">
+                        <h4 className="text-sm font-bold text-slate-900 mb-4">Task Distribution</h4>
+                        <div className="space-y-4">
+                          {[
+                            { status: "Completed", count: 156, total: 211, color: "bg-green-500" },
+                            { status: "In Progress", count: 34, total: 211, color: "bg-blue-500" },
+                            { status: "Pending", count: 12, total: 211, color: "bg-yellow-500" },
+                            { status: "Failed", count: 9, total: 211, color: "bg-red-500" }
+                          ].map((item, i) => (
+                            <div key={i}>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium text-slate-700">{item.status}</span>
+                                <span className="text-sm font-bold text-slate-900">{item.count}</span>
+                              </div>
+                              <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                                <div
+                                  className={`h-full ${item.color} transition-all duration-500`}
+                                  style={{ width: `${(item.count / item.total) * 100}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -309,8 +320,8 @@ const LandingPage = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
-            { 
-              title: "Task Management", 
+            {
+              title: "Task Management",
               description: "Create, assign, and track tasks with real-time updates and detailed progress monitoring.",
               icon: (
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,8 +329,8 @@ const LandingPage = () => {
                 </svg>
               )
             },
-            { 
-              title: "Team Control", 
+            {
+              title: "Team Control",
               description: "Manage employees, roles, and permissions with secure authentication and access control.",
               icon: (
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,8 +338,8 @@ const LandingPage = () => {
                 </svg>
               )
             },
-            { 
-              title: "Analytics", 
+            {
+              title: "Analytics",
               description: "Comprehensive insights into performance, completion rates, and productivity metrics.",
               icon: (
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -336,8 +347,8 @@ const LandingPage = () => {
                 </svg>
               )
             },
-            { 
-              title: "Secure Access", 
+            {
+              title: "Secure Access",
               description: "Role-based permissions ensure data security across all organizational levels.",
               icon: (
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -345,8 +356,8 @@ const LandingPage = () => {
                 </svg>
               )
             },
-            { 
-              title: "Real-Time Sync", 
+            {
+              title: "Real-Time Sync",
               description: "Instant updates and notifications keep everyone aligned and informed.",
               icon: (
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,8 +365,8 @@ const LandingPage = () => {
                 </svg>
               )
             },
-            { 
-              title: "Responsive", 
+            {
+              title: "Responsive",
               description: "Seamless experience across all devices and screen sizes.",
               icon: (
                 <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -385,7 +396,7 @@ const LandingPage = () => {
             <p className="text-xl text-slate-700 mb-10 leading-relaxed">
               Join forward-thinking organizations using Nucleo to streamline operations, boost productivity, and achieve exceptional results.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <button
                 onClick={() => navigate('/signup')}
@@ -393,8 +404,10 @@ const LandingPage = () => {
               >
                 Start Free Trial
               </button>
-              <button className="px-8 py-4 text-base font-semibold text-slate-900 bg-white hover:bg-slate-50 rounded-xl transition-all duration-200 border-2 border-slate-200 hover:border-slate-300"
-              onClick={()=> navigate("/demo")}>
+              <button
+                onClick={() => navigate("/demo")}
+                className="px-8 py-4 text-base font-semibold text-slate-900 bg-white hover:bg-slate-50 rounded-xl transition-all duration-200 border-2 border-slate-200 hover:border-slate-300"
+              >
                 Schedule Demo
               </button>
             </div>
@@ -418,7 +431,6 @@ const LandingPage = () => {
       </section>
 
       <Footer />
-      
     </div>
   );
 };

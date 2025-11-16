@@ -8,6 +8,22 @@ export default {
   theme: {
     extend: {
       colors: {
+
+        // ── inside theme.extend.colors ──
+        //custome colurs this will be used through out
+ui: {
+  bg:        '#ffffff',           // clean white
+  surface:   '#f9fafb',           // card / modal background
+  border:    '#e5e7eb',           // subtle borders
+  text:      '#111827',           // black-ish
+  textMuted: '#6b7280',           // gray-500
+  primary:   '#2563eb',           // blue-600
+  primaryHover: '#1d4ed8',        // blue-700
+  accent:    '#9333ea',           // purple-600
+  accentHover:'#7e22ce',          // purple-700
+},
+
+
         // Primary - Monzo-inspired vibrant blue
         primary: {
           50: '#eff6ff',
